@@ -1,0 +1,205 @@
+$avatar-width: 60px;
+$avatar-height: 60px;
+$border-width: 10px;
+
+$ellipse-diameter: 300px;
+
+$light-red: #ec2836;
+$dark-red: #8c0203;
+
+.room {
+  height: 100vh;
+  max-height: 100vh;
+  background-image: url('/red-light-centric-background.jpg');
+  background-repeat: no-repeat;
+  background-size: 100vw 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.table {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 2 * $ellipse-diameter;
+  height: $ellipse-diameter;
+  background: rgb(11,92,18);
+  background: radial-gradient(circle, rgba(23,173,38,1) 0%, rgba(11,92,18,1) 100%);
+  border-radius: $ellipse-diameter / 2;
+  border: solid gray $border-width;
+  margin-top: 150px;
+  user-select: none;
+}
+
+.table:after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  margin: 10px;
+  border-radius: inherit;
+  border: dotted black 1px;
+}
+
+$card-h-to-w-ratio: 0.69;
+$card-height: $ellipse-diameter / 3;
+$card-width: $card-height * $card-h-to-w-ratio;
+
+.common-cards {
+  height: $card-height;
+  width: $card-width * 5; // at most 5 cards on the table
+}
+
+.common-cards .card {
+  width: $card-width;
+}
+
+.seat {
+  z-index: 0; // creates new stacking order
+  position: absolute;
+}
+
+.top-right { right: $ellipse-diameter / 2 - $avatar-width; top: calc(0% - #{$avatar-height} - 20px); }
+.top-left { left: $ellipse-diameter / 2 - $avatar-width; top: calc(0% - #{$avatar-height} - 20px) ; }
+.middle-right { right: 0 - $avatar-width - 20px; top: calc(50% - #{$avatar-width} / 2); }
+.middle-left { left: 0 - $avatar-width - 20px; top: calc(50% - #{$avatar-height} / 2); }
+.bottom-right { right: $ellipse-diameter / 2 - $avatar-width; bottom: calc(0% - #{$avatar-height} - 20px); }
+.bottom-left { left: $ellipse-diameter / 2 - $avatar-width; bottom: calc(0% - #{$avatar-height} - 20px); }
+
+.avatar {
+  position: relative;
+  background-color: white;
+  width: $avatar-width;
+  height: $avatar-height;
+  border-radius: 50%;
+}
+
+.avatar::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    margin: -5px;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(to right, gray, gray, black);
+  }
+
+.avatar img {
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+}
+
+$info-width: 100px;
+$info-height: 50px;
+
+.info-box {
+  font-family: 'EB Garamond';
+  position: absolute;
+  width: $info-width;
+  height: $info-height;
+  background-image: linear-gradient(to right, #575757, black);
+  border-radius: 5px;
+  color: white;
+  border: dotted black 1px;
+
+  .cards-wrapper {
+    top: -45px;
+    height: 45px;
+    position: absolute;
+    width: 100px;
+  }
+
+  .cards-wrapper img {
+    display: inline-block;
+    width: 50px;
+    margin-top: 20px;
+    height: 25px;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .cards-wrapper img.raised {
+    margin-top: 0px;
+    height: 40px;
+  }
+
+  > span {
+    text-align: center;
+    display: inline-block;
+    height: 50%;
+    width: 100%;
+  }
+
+  span:first-child {
+    border-bottom-width: 2px;
+    border-bottom-style: solid;
+    border-image: linear-gradient(to right, #575757, white, #575757);
+    border-image-slice: 1;
+    line-height: $info-height / 2;
+  }
+}
+
+.info-box.center {
+  top: $avatar-height + 10px;
+  left:  $avatar-width / 2 - $info-width / 2;
+}
+
+.info-box.left {
+  top: $avatar-height / 2 - $info-height / 2;
+  left: -$info-width - 10px;
+}
+
+.info-box.right {
+  top: $avatar-height / 2 - $info-height / 2;
+  right: -$info-width - 10px;
+}
+
+.footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 10px;
+}
+
+.turn-menu {
+  display: flex;
+  flex-direction: column;
+}
+
+.raise-amount-row {
+  display: inline-block;
+  width: 100%;
+  text-align: right;
+}
+
+
+.buttons-row button {
+  width: 130px;
+  height: 60px;
+  color: #fff;
+  background-color: $light-red;
+  border: 2px solid;
+  border-radius: .28571429rem;
+  box-shadow: inset 0 0 0 0 rgba(34,36,38,.15);
+  text-shadow: none;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1em;
+  cursor: pointer;
+  display: inline-block;
+  min-height: 1em;
+  outline: none;
+  margin: 0 .25em 0 0;
+  padding: .78571429em 1.5em;
+  user-select: none;
+  transition: opacity .1s ease, background-color .1s ease, color .1s ease, box-shadow .1s ease, background .1s ease;
+}
+
+.buttons-row button:active, .buttons-row button:hover {
+  background: linear-gradient(to bottom right, red, $dark-red, black);
+}
