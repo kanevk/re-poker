@@ -1,75 +1,113 @@
 
-import React from 'react';
-import hackerAvatar from './hacker-avatar.png'
-import businessWomanAvatar from './business-woman-avatar.png'
-import businessManAvatar from './business-man-avatar.png'
-import fatherAvatar from './father-avatar.png'
-import faceMaskAvatar from './face-mask-avatar.png'
-import longHairAvatar from './long-hair-avatar.png'
+import React, { useCallback, useEffect, useState } from 'react';
+import { gql, useMutation, useQuery, useSubscription } from '@apollo/client';
+import { GET_CURRENT_ROOM } from '../../queries.js'
 
 import classNames from 'classnames/bind';
 import styles from './index.module.scss';
+import { useParams } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
-const Room = () => {
+const Room = ({ pusher }) => {
+  const { roomId } = useParams()
+  const { data: { getRoom } = {}, loading, error } = useSubscription(SUBSCRIPTION, { variables: { roomId } })
+  const [_makeMove] = useMutation(TRIGGER_SUBSCRIPTION, { variables: { input: { roomId } }})
+
+  const makeMove = ({ move, bet, xPlayerId }) => {
+    _makeMove({ variables: { input: { roomId, move, bet, xPlayerId } } })
+  }
+
+  window.makeMove = makeMove;
+
+  if (error) {
+    throw new Error(error)
+  }
+
+  if (loading || !getRoom) {
+    console.log('Loading...')
+    return 'Loading...'
+  }
+
+  const { currentGame: game } = getRoom
+
   return (
     <div className={cx('room')} >
-      <Table />
+      <Table roomId={roomId} game={game} />
       <div className={cx('footer')}>
         <div></div>
-        <TurnMenu minRaiseAmount='200' />
+        { game.currentPlayer?.isInTurn && <TurnMenu minRaiseAmount='200' makeMove={makeMove} /> }
       </div>
     </div>
   )
 }
 
-const Table = () => {
-  const players = [
-    { name: 'Loli', tableTotal: '23.42', cards: ['10s', 'Ah'] },
-    { name: 'Cat422', tableTotal: '103.10', cards: ['x', 'As'] },
-    { name: 'TheGodFather', tableTotal: '0.90', cards: ['x', 'x'] },
-    { name: 'a_am_ill', tableTotal: '100', cards: ['x', 'x'] },
-    { name: 'longy-dongy1', tableTotal: '1000', cards: ['x', 'x'] },
-    { name: 'nice-cut-pink', tableTotal: '1529.44', cards: ['x', 'x'] },
-  ]
-
-  const cards = ['7h', 'As', 'Kh', 'Ah', 'Ks']
-
-  const cardImgSlugs = cards.map((card) => {
-    if (card === 'x') return 'back-red'
-
-    const rank = card.slice(0, card.length - 1)
-    const color = card[card.length - 1]
-
-    const colorToPath = {
-      'c': 'club',
-      's': 'spade',
-      'h': 'heart',
-      'd': 'diamond',
+const SUBSCRIPTION = gql`
+  subscription ($roomId: ID!) {
+    getRoom(roomId: $roomId) {
+      currentGame {
+        currentPlayer {
+          id
+          name
+          isInTurn
+          avatarUrl
+          balance
+          moneyInPot
+          position
+          seatNumber
+          cards { rank color }
+        }
+        currentStage
+        gameEnded
+        smallBlind
+        bigBlind
+        pot
+        boardCards { rank color }
+        players {
+          id
+          name
+          isInTurn
+          avatarUrl
+          balance
+          moneyInPot
+          position
+          seatNumber
+          cards { rank color }
+        }
+      }
     }
+  }
+`;
 
-    const rankToPath = {
-      'A': '1',
-      'J': 'jack',
-      'Q': 'queen',
-      'K': 'king',
-    }
 
-    return `${colorToPath[color]}_${rankToPath[rank] || rank}`
-  })
+const TRIGGER_SUBSCRIPTION = gql`
+  mutation ($input: MakeMoveInput!) {
+    makeMove(input: $input) { success }
+  }
+`;
 
+const Table = ({ roomId, game }) => {
+  console.log(game)
 
   return (
     <div className={cx('table')}>
-      <Seat position='top-left' avatarSrc={hackerAvatar} infoBoxPosition='right' player={players[0]} />
-      <Seat position='top-right' avatarSrc={businessWomanAvatar} infoBoxPosition='right' player={players[1]} />
-      <Seat position='middle-left' avatarSrc={fatherAvatar} infoBoxPosition='center' player={players[2]} />
-      <Seat position='middle-right' avatarSrc={faceMaskAvatar} infoBoxPosition='center' player={players[3]} />
-      <Seat position='bottom-left' avatarSrc={longHairAvatar} infoBoxPosition='left' player={players[4]} />
-      <Seat position='bottom-right' avatarSrc={businessManAvatar} infoBoxPosition='left' player={players[5]} />
+      <div>
+        <p>Pot: ${game.pot}</p>
+        <p>Small blind: ${game.smallBlind}</p>
+        <p>Big blind: ${game.bigBlind}</p>
+        <p>Player in turn: {game.players.find(({ isInTurn }) => isInTurn).id}</p>
+      </div>
+      {
+        game.players.map((player) => {
+          if (game?.currentPlayer?.id === player.id) {
+            return <Seat key={player.seatNumber} player={game.currentPlayer} smallBlind={game.smallBlind}/>
+          } else {
+            return <Seat key={player.seatNumber} player={player} smallBlind={game.smallBlind}/>
+          }
+        })
+      }
       <div className={cx('common-cards')}>
-        {cardImgSlugs.map((slug) =>
+        {game.boardCards.map(imgSlugForCard).map((slug) =>
           <img className={cx('card')} src={`/cards/${slug}.png`} alt={slug} />
         )}
       </div>
@@ -77,57 +115,116 @@ const Table = () => {
   )
 }
 
-const TurnMenu = ({minRaiseAmount}) => {
+const TurnMenu = ({ minRaiseAmount, makeMove }) => {
+  const [raiseAmount, setRaiseAmount] = useState(minRaiseAmount)
+  const handleRaiseRangeChange = useCallback((e) => { setRaiseAmount(e.target.value) }, [])
+
   return <div className={cx('turn-menu')}>
     <div className={cx('raise-amount-row')}>
-      <input value='200' size='5'/>
-      <input type="range" id="raise-range" name="raise-range" min={minRaiseAmount} max="1000"></input>
+      <input value={raiseAmount} size='5' onChange={handleRaiseRangeChange}/>
+      <input type="range" id="raise-range" name="raise-range" value={raiseAmount} onChange={handleRaiseRangeChange} min={minRaiseAmount} max="1000"></input>
     </div>
     <div className={cx('buttons-row')}>
-      <button className={cx('fold')} >Fold</button>
-      <button className={cx('call')} >Call</button>
-      <button className={cx('raise')}> Raise {minRaiseAmount} </button>
+      <button className={cx('fold')} onClick={(e) => makeMove({ move: 'fold' })}>Fold</button>
+      <button className={cx('call')} onClick={(e) => makeMove({ move: 'call' })}>Call</button>
+      <button className={cx('raise')} onClick={(e) => makeMove({ move: 'raise', bet: raiseAmount })}> Raise {raiseAmount} </button>
     </div>
   </div>
 }
 
-const Seat = ({position, avatarSrc, infoBoxPosition, player}) => {
-  const cardImgPaths = player.cards.map((card) => {
-    if (card === 'x') return '/cards/back-red.png'
+const seatStyles = {
+  0: { dealerClass: 'dealer-bottom-right', chipsClass: 'chips-bottom-right', seatClass: 'bottom-right', infoBoxPosition: 'left'},
+  1: { dealerClass: 'dealer-middle-right', chipsClass: 'chips-middle-right', seatClass: 'middle-right', infoBoxPosition: 'center'},
+  2: { dealerClass: 'dealer-top-right', chipsClass: 'chips-top-right', seatClass: 'top-right', infoBoxPosition: 'right'},
+  3: { dealerClass: 'dealer-top-left', chipsClass: 'chips-top-left', seatClass: 'top-left', infoBoxPosition: 'right'},
+  4: { dealerClass: 'dealer-middle-left', chipsClass: 'chips-middle-left', seatClass: 'middle-left', infoBoxPosition: 'center'},
+  5: { dealerClass: 'dealer-bottom-left', chipsClass: 'chips-bottom-left', seatClass: 'bottom-left', infoBoxPosition: 'left'},
+}
 
-    const rank = card.slice(0, card.length - 1)
-    const color = card[card.length - 1]
+const MAX_BLUE_CHIPS = 10
+const PlayerChips = ({ smallBlind, betAmount, classes }) => {
+  const blackChipValue = 10 * smallBlind;
+  const blueChipValue = smallBlind;
 
-    const colorToPath = {
-      'c': 'club',
-      's': 'spade',
-      'h': 'heart',
-      'd': 'diamond',
-    }
+  const blackChipsCount = parseInt(betAmount / blackChipValue);
+  const blueChipsCount = parseInt((betAmount - blackChipsCount * blackChipValue) / blueChipValue);
+  console.log(betAmount);
+  // if (blackChipsCount && blueChipsCount) debugger
+  return (
+    <div className={cx(['chips-container', ...classes])}>
+      <div className={cx('chip-column')}>
+        {
+          !!blackChipsCount &&
+          Array.from({ length: blackChipsCount }, () =>
+            <img src="/chips/chip-black.png" alt="blue-chip" className={cx('chip')}/>)
+        }
+      </div>
+      <div className={cx('chip-column')}>
+        {
+          !!blueChipsCount &&
+          Array.from({ length: blueChipsCount }, () =>
+            <img src="/chips/chip-blue.png" alt="blue-chip" className={cx('chip')}/>)
+        }
+      </div>
+    </div>
+  )
+}
 
-    const rankToPath = {
-      'A': '1',
-      'J': 'jack',
-      'Q': 'queen',
-      'K': 'king',
-    }
+const Seat = ({ player, smallBlind }) => {
+  const [countdownSeconds, setCountdownSeconds] = useState(15)
+  const firstCard = player.cards[0] || { rank: 'back' }, secondCard = player.cards[1] || { rank: 'back' };
 
-    return `/cards/${colorToPath[color]}_${rankToPath[rank] || rank}.png`
-  })
+  useEffect(() => {
+    if (!player.isInTurn) return
+    if (countdownSeconds <= 0) return
+
+    setTimeout(() => {
+      console.log(countdownSeconds)
+      setCountdownSeconds(countdownSeconds - 0.5)
+    },
+    500)
+  }, [player.isInTurn, countdownSeconds])
+
+  const { seatClass, infoBoxPosition, dealerClass, chipsClass } = seatStyles[player.seatNumber];
+  const countdownClasses = cx({ 'time-bar': true, 'red': countdownSeconds < 5 })
 
   return (
-    <div className={cx('seat', position)}>
-      <div className={cx('avatar')}> <img src={avatarSrc} alt={avatarSrc}/> </div>
-      <div className={cx('info-box', infoBoxPosition)}>
-        <span>{player.name}</span>
-        <span>${player.tableTotal}</span>
-        <div className={cx('cards-wrapper')}>
-          <img src={cardImgPaths[0]} alt='back' className={cx('card')}/>
-          <img src={cardImgPaths[1]} alt='back' className={cx('card')}/>
+    <div>
+      { player.position === 'D' && <img src={`/chips/chip-dealer.png`} alt="dealer-chip" className={cx('dealer-chip', dealerClass)}/> }
+      <PlayerChips classes={[chipsClass]} smallBlind={smallBlind} betAmount={player.moneyInPot} />
+      <div className={cx('seat', seatClass)}>
+        <div className={cx('avatar')}> <img src='/avatars/business-man-avatar.png' alt='business-man-avatar'/> </div>
+        <div className={cx('info-box', infoBoxPosition)}>
+          <span>{player.name}</span>
+          <span>${player.balance}</span>
+          <div className={cx('cards-wrapper')}>
+            <img src={`/cards/${imgSlugForCard(firstCard)}.png`}
+                alt={imgSlugForCard(firstCard)}
+                className={cx({ card: true, raised: !!firstCard})}/>
+            <img src={`/cards/${imgSlugForCard(secondCard)}.png`}
+                alt={imgSlugForCard(firstCard)}
+                className={cx({ kcard: true, raised: !!secondCard })}/>
+          </div>
+          {
+            player.isInTurn ? <progress value={countdownSeconds * 2} max='30' className={countdownClasses}></progress> : null
+          }
         </div>
       </div>
     </div>
   )
+}
+
+const imgSlugForCard = ({ rank, color }) => {
+  if (rank === 'back') return "back"
+
+  const rankToPath = {
+    'A': '1',
+    'J': 'jack',
+    'Q': 'queen',
+    'K': 'king',
+  }
+
+  return `${color}_${rankToPath[rank] || rank}`
 }
 
 

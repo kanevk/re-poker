@@ -6,6 +6,8 @@ $ellipse-diameter: 300px;
 
 $light-red: #ec2836;
 $dark-red: #8c0203;
+$light-green: rgba(23,173,38,1);
+$dark-green: rgba(11, 92, 18, 1);
 
 .room {
   height: 100vh;
@@ -29,7 +31,7 @@ $dark-red: #8c0203;
   width: 2 * $ellipse-diameter;
   height: $ellipse-diameter;
   background: rgb(11,92,18);
-  background: radial-gradient(circle, rgba(23,173,38,1) 0%, rgba(11,92,18,1) 100%);
+  background: radial-gradient(circle, $light-green 0%, $dark-green 100%);
   border-radius: $ellipse-diameter / 2;
   border: solid gray $border-width;
   margin-top: 150px;
@@ -48,6 +50,52 @@ $dark-red: #8c0203;
 $card-h-to-w-ratio: 0.69;
 $card-height: $ellipse-diameter / 3;
 $card-width: $card-height * $card-h-to-w-ratio;
+
+$dealer-chip-size: 32px;
+.dealer-chip {
+  width: $dealer-chip-size;
+  height: $dealer-chip-size;
+  position: absolute;
+}
+
+.dealer-top-right { right: $ellipse-diameter / 2 - $dealer-chip-size; top: calc(0% - #{$dealer-chip-size} + 40px); }
+.dealer-top-left { left: $ellipse-diameter / 2 - $dealer-chip-size; top: calc(0% - #{$dealer-chip-size} + 40px) ; }
+.dealer-middle-right { right: 0 - $dealer-chip-size + 40px; top: calc(50% - #{$dealer-chip-size} / 2); }
+.dealer-middle-left { left: 0 - $dealer-chip-size + 40px; top: calc(50% - #{$dealer-chip-size} / 2); }
+.dealer-bottom-right { right: $ellipse-diameter / 2 - $dealer-chip-size; bottom: calc(0% - #{$dealer-chip-size} + 40px); }
+.dealer-bottom-left { left: $ellipse-diameter / 2 - $dealer-chip-size; bottom: calc(0% - #{$dealer-chip-size} + 40px); }
+
+$chips-container-size: 64px;
+.chips-container {
+  width: $chips-container-size;
+  height: $chips-container-size;
+  position: absolute;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: center;
+}
+
+.chip-column {
+  height: 50px;
+  display: flex;
+  flex-direction: column-reverse;
+  margin-right: 5px;
+}
+
+$chip-size: 16px;
+.chip {
+  margin-bottom: -14px;
+  width: $chip-size;
+  height: $chip-size;
+}
+
+.chips-top-right { right: $ellipse-diameter / 2 - $chips-container-size / 2; top: 20px; }
+.chips-top-left { left: $ellipse-diameter / 2 - $chips-container-size / 2; top: 20px; }
+.chips-middle-right { right: 40px; top: calc(50% - #{$chips-container-size} / 2); }
+.chips-middle-left { left: 40px; top: calc(50% - #{$chips-container-size} / 2); }
+.chips-bottom-right { right: $ellipse-diameter / 2 - $chips-container-size; bottom: 40px; }
+.chips-bottom-left { left: $ellipse-diameter / 2 - $chips-container-size; bottom: 40px; }
 
 .common-cards {
   height: $card-height;
@@ -94,7 +142,7 @@ $card-width: $card-height * $card-h-to-w-ratio;
   height: 100%;
 }
 
-$info-width: 100px;
+$info-width: 120px;
 $info-height: 50px;
 
 .info-box {
@@ -105,10 +153,65 @@ $info-height: 50px;
   background-image: linear-gradient(to right, #575757, black);
   border-radius: 5px;
   color: white;
-  border: dotted black 1px;
+
+  progress[value].time-bar {
+    width: 100%;
+
+    appearance: none;
+
+    height: 10px;
+  }
+
+  @keyframes pulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 transparentize($color: $dark-red, $amount: 0.3);
+        border-radius: 3px;
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px transparentize($color: $dark-red, $amount: 0.5);
+        border-radius: 3px;
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 transparentize($color: $dark-red, $amount: 0.8);
+        border-radius: 3px;
+    }
+  }
+
+  progress[value]::-webkit-progress-bar {
+    height: 10px;
+    background-color: whiteSmoke;
+    border-radius: 3px;
+    box-shadow: 0 2px 3px rgba(0,0,0,.5) inset;
+  }
+
+  progress[value]::-webkit-progress-value {
+    position: relative;
+
+    height: 10px;
+    background-size: 35px 20px, 100% 100%, 100% 100%;
+    border-radius: 3px;
+    background-color: $light-green;
+
+    /* Let's animate this */
+    animation: animate-stripes 5s linear infinite;
+  }
+
+  progress.time-bar.red {
+    animation: pulse 2s infinite;
+
+    &::-webkit-progress-value {
+      background-color: $light-red;
+    }
+  }
 
   .cards-wrapper {
     top: -45px;
+    left: 10px;
     height: 45px;
     position: absolute;
     width: 100px;
@@ -163,12 +266,13 @@ $info-height: 50px;
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding-bottom: 10px;
 }
 
 .turn-menu {
   display: flex;
   flex-direction: column;
+  margin-bottom: 50px;
+  margin-right: 50px;
 }
 
 .raise-amount-row {
