@@ -58,8 +58,6 @@ const App = () => {
     setIsAuthenticated(true);
   }
 
-  // console.log("pusher", pusher)
-
   return (
     <div className={cx('main')}>
       <Router history={history}>
