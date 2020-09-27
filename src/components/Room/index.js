@@ -12,10 +12,10 @@ const cx = classNames.bind(styles);
 const Room = ({ pusher }) => {
   const { roomId } = useParams()
   const { data: { getRoom } = {}, loading, error } = useSubscription(SUBSCRIPTION, { variables: { roomId } })
-  const [_makeMove] = useMutation(TRIGGER_SUBSCRIPTION, { variables: { input: { roomId } }})
+  const [_makeMove] = useMutation(TRIGGER_SUBSCRIPTION)
 
   const makeMove = ({ move, bet, xPlayerId }) => {
-    _makeMove({ variables: { input: { roomId, move, bet, xPlayerId } } })
+    _makeMove({ variables: { input: { gameVersion: getRoom.currentGame.version, move, bet, xPlayerId } } })
   }
 
   window.makeMove = makeMove;
@@ -46,6 +46,7 @@ const SUBSCRIPTION = gql`
   subscription ($roomId: ID!) {
     getRoom(roomId: $roomId) {
       currentGame {
+        version
         currentPlayer {
           id
           name
@@ -141,7 +142,6 @@ const seatStyles = {
   5: { dealerClass: 'dealer-bottom-left', chipsClass: 'chips-bottom-left', seatClass: 'bottom-left', infoBoxPosition: 'left'},
 }
 
-const MAX_BLUE_CHIPS = 10
 const PlayerChips = ({ smallBlind, betAmount, classes }) => {
   const blackChipValue = 10 * smallBlind;
   const blueChipValue = smallBlind;
