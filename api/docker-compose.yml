@@ -1,0 +1,24 @@
+version: "3.2"
+
+services:
+  poker_redis:
+    image: redis:6.0.8
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./tmp/data/redis:/var/lib/redis
+      - ./tmp/data/redis.conf:/usr/local/etc/redis/redis.conf
+
+  poker_postgres:
+    image: postgres:12.4
+    environment:
+      LC_ALL: C.UTF-8
+      POSTGRES_DB: poker_backend
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./tmp/data/postgres:/var/lib/postgresql/data
+    stdin_open: true
+    tty: true
