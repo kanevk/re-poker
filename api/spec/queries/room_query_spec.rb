@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Room query', type: :queries do
-  it do
+  it 'full query' do
     query = <<~GRAPHQL
       query ($roomId: ID!) {
         getRoom(id: $roomId) {
@@ -9,7 +9,9 @@ RSpec.describe 'Room query', type: :queries do
           currentGame {
             id
             version
-            currentPlayerId
+            currentPlayer {
+              id
+            }
             currentStage
             gameEnded
             smallBlind
@@ -23,15 +25,14 @@ RSpec.describe 'Room query', type: :queries do
               balance
               position
               seatNumber
-              cards { rank color }
             }
           }
         }
       }
     GRAPHQL
 
-    user = User.create!(name: 'bob', balance: 100)
-    another_user = User.create!(name: 'maria', balance: 200)
+    user = User.create!(name: 'bob', balance: 100, password: '1')
+    another_user = User.create!(name: 'maria', balance: 200, password: '1')
 
     players = [
       { id: user.id, balance: 100 },
@@ -43,10 +44,10 @@ RSpec.describe 'Room query', type: :queries do
     game_state = PokerEngine::Game.start(players, small_blind: room.small_blind,
                                                            big_blind: room.big_blind,
                                                            deck_seed: rand(1..1_000))
-    game = Game.create!(state: game_state, room: room)
+    game = Game.create!(state: game_state, room: room, version: SecureRandom.uuid)
     room.update!(current_game: game, seats: [user.id, another_user.id])
 
-    response = graphql_execute(query, variables: { 'roomId' => room.id }, context: {})
+    response = graphql_execute(query, variables: { 'roomId' => room.id }, context: { current_user: user })
 
     game.reload
 
@@ -55,7 +56,9 @@ RSpec.describe 'Room query', type: :queries do
       'currentGame' => {
         'id' => game.id.to_s,
         'version' => game.version,
-        'currentPlayerId' => '1',
+        'currentPlayer' => {
+          'id' => user.id.to_s,
+        },
         'currentStage' => 'preflop',
         'gameEnded' => false,
         'smallBlind' => 5.0,
@@ -70,7 +73,6 @@ RSpec.describe 'Room query', type: :queries do
             'balance' => 95.0,
             'position' => 'SB',
             'seatNumber' => 0,
-            'cards' => game_state[:players][user.id][:cards].map { |c| { 'rank' => c.rank, 'color' => c.color.to_s } },
           },
           {
             'id' => another_user.id.to_s,
@@ -79,7 +81,55 @@ RSpec.describe 'Room query', type: :queries do
             'balance' => 190.0,
             'position' => 'BB',
             'seatNumber' => 1,
-            'cards' => game_state[:players][another_user.id][:cards].map { |c| { 'rank' => c.rank, 'color' => c.color.to_s } },
+          },
+        )
+      }
+    })
+  end
+
+  it "the players' cards are obfuscated" do
+    query = <<~GRAPHQL
+      query ($roomId: ID!) {
+        getRoom(id: $roomId) {
+          id
+          currentGame {
+            id
+            players {
+              id
+              cards { rank color }
+            }
+          }
+        }
+      }
+    GRAPHQL
+
+    user = User.create!(name: 'bob', balance: 100, password: '1')
+    another_user = User.create!(name: 'maria', balance: 200, password: '1')
+    players = [ { id: user.id, balance: 100 }, { id: another_user.id, balance: 200 } ]
+
+    room = Room.create!(name: 'name', small_blind: 5, big_blind: 10)
+    game_state = PokerEngine::Game.start(players, small_blind: room.small_blind,
+                                                  big_blind: room.big_blind,
+                                                  deck_seed: rand(1..1_000))
+    game = Game.create!(state: game_state, room: room, version: SecureRandom.uuid)
+    room.update!(current_game: game, seats: [user.id, another_user.id])
+
+    response = graphql_execute(query, variables: { 'roomId' => room.id }, context: { current_user: user })
+
+    game.reload
+
+    expect(response).to resolve_successfully('getRoom').with({
+      'id' => room.id.to_s,
+      'currentGame' => {
+        'id' => game.id.to_s,
+        'players' => contain_exactly(
+          {
+            'id' => user.id.to_s,
+            'cards' => [],
+          },
+          {
+            'id' => another_user.id.to_s,
+            'cards' => [],
           },
         )
       }
