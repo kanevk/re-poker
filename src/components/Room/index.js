@@ -175,7 +175,7 @@ const Seat = ({ player, smallBlind }) => {
   const firstCard = player.cards[0] || { rank: 'back' }, secondCard = player.cards[1] || { rank: 'back' };
 
   useEffect(() => {
-    if (!player.isInTurn) return
+    if (!player.isInTurn) return setCountdownSeconds(15)
     if (countdownSeconds <= 0) return
 
     setTimeout(() => {
