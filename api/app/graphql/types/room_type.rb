@@ -43,9 +43,14 @@ module Types
       @object.state[:board]
     end
 
-    field :game_ended, Boolean, null: false
-    def game_ended
+    field :is_finished, Boolean, null: false
+    def is_finished
       @object.state[:game_ended]
+    end
+
+    field :just_started, Boolean, null: false
+    def just_started
+      true
     end
 
     field :big_blind, Integer, null: false
