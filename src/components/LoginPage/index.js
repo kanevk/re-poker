@@ -27,7 +27,6 @@ const LoginPage = ({ onSuccessLogin, isAuthenticated }) => {
 
   return (
     <div className={cx('main')}>
-      <img src='/logo-gif.gif' alt='logo-gif' />
       <form onSubmit={handleSubmit} >
         <input type='text' placeholder='username' value={username} onChange={(e) => { setUsername(e.target.value) }} />
         <input type='password' placeholder='password' value={password} onChange={(e) => { setPassword(e.target.value) }} />

@@ -8,12 +8,12 @@ $light-red: #ec2836;
 $dark-red: #8c0203;
 $light-green: rgba(23,173,38,1);
 $dark-green: rgba(11, 92, 18, 1);
+$light-blue: #5486a6;
+$dark-blue: #013b74;
 
 .room {
   height: 100vh;
   max-height: 100vh;
-  background-image: url('/red-light-centric-background.jpg');
-  background-repeat: no-repeat;
   background-size: 100vw 100vh;
   display: flex;
   flex-direction: column;
@@ -31,7 +31,7 @@ $dark-green: rgba(11, 92, 18, 1);
   width: 2 * $ellipse-diameter;
   height: $ellipse-diameter;
   background: rgb(11,92,18);
-  background: radial-gradient(circle, $light-green 0%, $dark-green 100%);
+  background: radial-gradient(circle, $light-blue 0%, $dark-blue 100%);
   border-radius: $ellipse-diameter / 2;
   border: solid gray $border-width;
   margin-top: 150px;

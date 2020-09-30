@@ -9,15 +9,19 @@ import { useParams } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
-const Room = ({ pusher }) => {
+const Room = () => {
   const { roomId } = useParams()
   const { data: { getRoom } = {}, loading, error } = useSubscription(SUBSCRIPTION, { variables: { roomId } })
   const [_makeMove] = useMutation(TRIGGER_SUBSCRIPTION)
 
   const makeMove = ({ move, bet, xPlayerId }) => {
+    bet = bet && parseInt(bet, 10);
     _makeMove({ variables: { input: { gameVersion: getRoom.currentGame.version, move, bet, xPlayerId } } })
   }
 
+
+  // Hack for development
+  // TODO: Replace this with something more sophisticated
   window.makeMove = makeMove;
 
   if (error) {
@@ -29,7 +33,7 @@ const Room = ({ pusher }) => {
     return 'Loading...'
   }
 
-  const { currentGame: game } = getRoom
+  const { currentGame: game } = getRoom;
 
   return (
     <div className={cx('room')} >
@@ -59,7 +63,7 @@ const SUBSCRIPTION = gql`
           cards { rank color }
         }
         currentStage
-        gameEnded
+        isFinished
         smallBlind
         bigBlind
         pot
@@ -189,7 +193,7 @@ const Seat = ({ player, smallBlind }) => {
   const countdownClasses = cx({ 'time-bar': true, 'red': countdownSeconds < 5 })
 
   return (
-    <div>
+    <div key={player.id} >
       { player.position === 'D' && <img src={`/chips/chip-dealer.png`} alt="dealer-chip" className={cx('dealer-chip', dealerClass)}/> }
       <PlayerChips classes={[chipsClass]} smallBlind={smallBlind} betAmount={player.moneyInPot} />
       <div className={cx('seat', seatClass)}>
