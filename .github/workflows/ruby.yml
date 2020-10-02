@@ -1,0 +1,32 @@
+name: Backend tests & lint
+
+on:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'api/*'
+
+jobs:
+  specs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1.47.0
+
+      with:
+        bundler-cache: false
+        ruby-version: '2.6'
+    - uses: actions/cache@v2
+      with:
+        path: api/vendor/bundle
+        key: ${{ runner.os }}-gems-${{ hashFiles('api/Gemfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-gems-
+    - run: cd api && bundle install --path ./vendor/bundle
+    - name: Run service dependencies
+      run: cd api && docker-compose up -d
+    - name: Create and setup the database
+      run: cd api && bundle exec rails db:setup
+    - name: Run tests
+      run: cd api && bundle exec rspec -fd
