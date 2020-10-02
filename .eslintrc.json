@@ -21,6 +21,9 @@
     "jsx-a11y/href-no-hash": ["off"],
     "react/jsx-filename-extension": ["warn", { "extensions": [".js", ".jsx"] }],
     "react/jsx-props-no-spreading": ["off"],
+    "react/require-default-props": ["off"],
+    "no-use-before-define": ["off"],
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
     "import/prefer-default-export": ["off"],
     "no-console": ["off"],
     "max-len": [

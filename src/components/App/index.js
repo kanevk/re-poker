@@ -1,17 +1,14 @@
-import React, { Suspense, useEffect, useState } from "react";
-import { Router, Route, Switch, Redirect, Link } from "react-router-dom";
-import { useQuery } from "@apollo/client";
-import { useLocation } from "react-router-dom";
-import { createBrowserHistory } from "history";
-import Room from '../Room'
-import LoginPage from '../LoginPage'
-import { IS_AUTHENTICATED_QUERY, GET_ROOMS } from '../../queries'
-
+import React, { Suspense, useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Switch, Redirect, useLocation } from 'react-router-dom';
 import classNames from 'classnames/bind';
+
+import LobbyPage from '../LobbyPage';
+import RoomPage from '../RoomPage';
+import LoginPage from '../LoginPage';
+
 import styles from './index.module.scss';
 
 const cx = classNames.bind(styles);
-
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -21,33 +18,7 @@ const ScrollToTop = () => {
   }, [pathname]);
 
   return null;
-}
-
-const history = createBrowserHistory();
-
-const HomePage = () => {
-  const { data: { rooms } = {}, loading } = useQuery(GET_ROOMS)
-
-  if (loading) {
-    return <div>Loading...</div>
-  }
-
-  return (
-    <div>
-      <ul>
-        {
-          rooms.map((room) => {
-            return (
-              <li key={room.id}>
-                <Link to={`rooms/${room.id}`}> Room /{room.name}/ </Link>
-              </li>
-            )
-          })
-        }
-      </ul>
-    </div>
-  )
-}
+};
 
 const App = () => {
   // TODO: handle outdated tokens
@@ -56,22 +27,44 @@ const App = () => {
   const handleSuccessLogin = (token) => {
     localStorage.setItem('token', token);
     setIsAuthenticated(true);
-  }
+  };
 
   return (
     <div className={cx('main')}>
-      <Router history={history}>
-        <ScrollToTop/>
+      <Router>
+        <ScrollToTop />
         <Suspense fallback={<div>Loading...</div>}>
           <Switch>
-            <Route exact path="/login" render={(routeProps) => <LoginPage onSuccessLogin={handleSuccessLogin} isAuthenticated={isAuthenticated} {...routeProps} /> } />
-            <Route path="/" exact render={(routeProps) => isAuthenticated ? <HomePage {...routeProps} /> : <Redirect to='/login' />} />
-            <Route path="/rooms/:roomId"  exact render={(routeProps) => isAuthenticated ? <Room {...routeProps} /> : <Redirect to='/login' />} />
+            <Route
+              exact
+              path="/login"
+              render={(routeProps) => (
+                <LoginPage
+                  onSuccessLogin={handleSuccessLogin}
+                  isAuthenticated={isAuthenticated}
+                  {...routeProps}
+                />
+              )}
+            />
+            <Route
+              path="/"
+              exact
+              render={(routeProps) =>
+                isAuthenticated ? <LobbyPage {...routeProps} /> : <Redirect to="/login" />
+              }
+            />
+            <Route
+              path="/rooms/:roomId"
+              exact
+              render={(routeProps) =>
+                isAuthenticated ? <RoomPage {...routeProps} /> : <Redirect to="/login" />
+              }
+            />
           </Switch>
         </Suspense>
       </Router>
     </div>
   );
-}
+};
 
 export default App;
