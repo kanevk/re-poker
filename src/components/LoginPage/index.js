@@ -16,12 +16,12 @@ const LoginPage = ({ onSuccessLogin, isAuthenticated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { data: { signinUser: { token } = {} } = {} } = await login({
+    const { data: { signinUser: { token } = {} } = {}, error } = await login({
       variables: { username, password },
     });
 
-    if (!token) {
-      alert('Not correct username or pass');
+    if (error) {
+      console.error(error);
       return;
     }
 
