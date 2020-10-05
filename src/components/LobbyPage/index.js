@@ -5,7 +5,11 @@ import { useQuery } from '@apollo/client';
 import { GET_ROOMS_QUERY } from '../../Graphql';
 
 const LobbyPage = () => {
-  const { data: { rooms } = {}, loading } = useQuery(GET_ROOMS_QUERY);
+  const { data: { rooms } = {}, loading, error } = useQuery(GET_ROOMS_QUERY);
+
+  if (error) {
+    throw new Error(error);
+  }
 
   if (loading) {
     return <div>Loading...</div>;
