@@ -1,29 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { gql, useMutation, useSubscription } from '@apollo/client';
+import { useMutation, useSubscription } from '@apollo/client';
 import classNames from 'classnames/bind';
 import { useParams } from 'react-router-dom';
 
 import TurnMenu from './TurnMenu';
-import { GET_ROOM_SUBSCRIPTION } from '../../Graphql';
+import { GET_ROOM_SUBSCRIPTION, MAKE_MOVE_MUTATION } from '../../Graphql';
 import styles from './index.module.scss';
 
 const cx = classNames.bind(styles);
-
-const TRIGGER_SUBSCRIPTION = gql`
-  mutation($input: MakeMoveInput!) {
-    makeMove(input: $input) {
-      success
-    }
-  }
-`;
 
 const RoomPage = () => {
   const { roomId } = useParams();
   const { data: { getRoom } = {}, loading, error } = useSubscription(GET_ROOM_SUBSCRIPTION, {
     variables: { roomId },
   });
-  const [_makeMove] = useMutation(TRIGGER_SUBSCRIPTION);
+  const [_makeMove] = useMutation(MAKE_MOVE_MUTATION);
 
   const makeMove = ({ move, bet, xPlayerId }) => {
     _makeMove({
@@ -58,7 +50,7 @@ const RoomPage = () => {
 };
 
 const CardType = {
-  color: PropTypes.string.isRequired,
+  color: PropTypes.string,
   rank: PropTypes.string.isRequired,
 };
 
@@ -195,8 +187,8 @@ Seat.propTypes = {
 };
 function Seat({ player, smallBlind }) {
   const [countdownSeconds, setCountdownSeconds] = useState(15);
-  const firstCard = player.cards[0] || { rank: 'back' };
-  const secondCard = player.cards[1] || { rank: 'back' };
+  const firstCard = player.cards[0];
+  const secondCard = player.cards[1];
 
   useEffect(() => {
     if (!player.isInTurn) {
@@ -213,6 +205,7 @@ function Seat({ player, smallBlind }) {
 
   const { seatClass, infoBoxPosition, dealerClass, chipsClass } = seatStyles[player.seatNumber];
   const countdownClasses = cx({ 'time-bar': true, red: countdownSeconds < 5 });
+  const seatClasses = cx({ seat: true, [seatClass]: true, inactive: !player.active });
 
   return (
     <div key={player.id}>
@@ -224,7 +217,7 @@ function Seat({ player, smallBlind }) {
         />
       )}
       <PlayerChips classes={[chipsClass]} smallBlind={smallBlind} betAmount={player.moneyInPot} />
-      <div className={cx('seat', seatClass)}>
+      <div className={seatClasses}>
         <div className={cx('avatar')}>
           {' '}
           <img src="/avatars/business-man-avatar.png" alt="business-man-avatar" />{' '}
@@ -254,7 +247,7 @@ function Seat({ player, smallBlind }) {
 }
 
 const imgSlugForCard = ({ rank, color }) => {
-  if (rank === 'back') return 'back';
+  if (rank === 'hidden') return 'back';
 
   const rankToPath = {
     A: '1',

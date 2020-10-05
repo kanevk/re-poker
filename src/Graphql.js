@@ -18,24 +18,31 @@ const GET_ROOMS_QUERY = gql`
   }
 `;
 
+const FULL_PLAYER_FRAGMENT = gql`
+  fragment FullPlayer on Player {
+    id
+    name
+    active
+    isInTurn
+    avatarUrl
+    balance
+    moneyInPot
+    position
+    seatNumber
+    cards {
+      rank
+      color
+    }
+  }
+`;
+
 const GET_ROOM_SUBSCRIPTION = gql`
   subscription($roomId: ID!) {
     getRoom(roomId: $roomId) {
       currentGame {
         version
         currentPlayer {
-          id
-          name
-          isInTurn
-          avatarUrl
-          balance
-          moneyInPot
-          position
-          seatNumber
-          cards {
-            rank
-            color
-          }
+          ...FullPlayer
         }
         currentStage
         isFinished
@@ -47,22 +54,21 @@ const GET_ROOM_SUBSCRIPTION = gql`
           color
         }
         players {
-          id
-          name
-          isInTurn
-          avatarUrl
-          balance
-          moneyInPot
-          position
-          seatNumber
-          cards {
-            rank
-            color
-          }
+          ...FullPlayer
         }
       }
     }
   }
+
+  ${FULL_PLAYER_FRAGMENT}
 `;
 
-export { GET_ROOMS_QUERY, SIGNIN_USER_MUTATON, GET_ROOM_SUBSCRIPTION };
+const MAKE_MOVE_MUTATION = gql`
+  mutation($input: MakeMoveInput!) {
+    makeMove(input: $input) {
+      success
+    }
+  }
+`;
+
+export { GET_ROOMS_QUERY, SIGNIN_USER_MUTATON, GET_ROOM_SUBSCRIPTION, MAKE_MOVE_MUTATION };

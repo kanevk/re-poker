@@ -1,11 +1,16 @@
 module Types
+  HIDDEN_CARD_RANK = 'hidden'
+
   class CardType < Types::BaseObject
     field :rank, String, null: false # TODO: move to enum
-    field :color, String, null: false # TODO: move to enum
+    field :color, String, null: true # TODO: move to enum
   end
 
   class PlayerType < Types::BaseObject
-    OBJECT = Struct.new(:id, :name, :balance, :money_in_pot, :seat_number, :position, :avatar_url, :cards, :is_in_turn, keyword_init: true) do
+    OBJECT = Struct.new(:id, :name, :active, :balance, :money_in_pot,
+                        :seat_number, :position, :avatar_url, :cards,
+                        :is_in_turn, keyword_init: true) do
+
       def initialize(**kwargs)
         super(kwargs.slice(*members))
       end
@@ -13,6 +18,7 @@ module Types
 
     field :id, ID, null: false
     field :name, String, null: false
+    field :active, Boolean, null: false
     field :balance, Integer, null: true
     field :money_in_pot, Integer, null: true
     field :seat_number, Int, null: true
@@ -70,7 +76,13 @@ module Types
 
     field :players, [PlayerType], null: true
     def players
-      @object.state[:players].values.map { |player| player.merge(cards: []) }.map(&method(:resolve_player))
+      @object
+        .state[:players].values.map do |player|
+          player.merge(cards: [
+            { rank: HIDDEN_CARD_RANK }, { rank: HIDDEN_CARD_RANK }
+          ])
+        end
+        .map(&method(:resolve_player))
     end
 
     private
