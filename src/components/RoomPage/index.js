@@ -57,7 +57,35 @@ const RoomPage = () => {
   );
 };
 
-const Table = ({ game }) => {
+const CardType = {
+  color: PropTypes.string.isRequired,
+  rank: PropTypes.string.isRequired,
+};
+
+const PlayerType = PropTypes.shape({
+  id: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  seatNumber: PropTypes.number.isRequired,
+  active: PropTypes.bool.isRequired,
+  isInTurn: PropTypes.bool.isRequired,
+  cards: PropTypes.arrayOf(CardType),
+  position: PropTypes.string.isRequired,
+  balance: PropTypes.number.isRequired,
+  moneyInPot: PropTypes.number.isRequired,
+});
+
+Table.propTypes = {
+  game: PropTypes.shape({
+    pot: PropTypes.number.isRequired,
+    smallBlind: PropTypes.number.isRequired,
+    bigBlind: PropTypes.number.isRequired,
+    currentPlayer: PlayerType,
+    players: PropTypes.arrayOf(PlayerType),
+    boardCards: PropTypes.arrayOf(CardType),
+  }),
+};
+
+function Table({ game }) {
   console.log(game);
 
   return (
@@ -87,28 +115,7 @@ const Table = ({ game }) => {
       </div>
     </div>
   );
-};
-
-const PlayerType = {
-  id: PropTypes.string.isRequired,
-  seatNumber: PropTypes.number.isRequired,
-};
-
-const CardType = {
-  color: PropTypes.string.isRequired,
-  rank: PropTypes.string.isRequired,
-};
-
-Table.propTypes = {
-  game: PropTypes.shape({
-    pot: PropTypes.number.isRequired,
-    smallBlind: PropTypes.number.isRequired,
-    bigBlind: PropTypes.number.isRequired,
-    currentPlayer: PropTypes.instanceOf(PlayerType),
-    players: PropTypes.arrayOf(PlayerType),
-    boardCards: PropTypes.arrayOf(CardType),
-  }),
-};
+}
 
 const seatStyles = {
   0: {
@@ -183,7 +190,7 @@ function PlayerChips({ smallBlind, betAmount, classes }) {
 }
 
 Seat.propTypes = {
-  player: PropTypes.instanceOf(PlayerType),
+  player: PlayerType,
   smallBlind: PropTypes.bool.isRequired,
 };
 function Seat({ player, smallBlind }) {
