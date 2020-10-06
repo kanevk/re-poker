@@ -1,5 +1,5 @@
 type Card {
-  color: String!
+  color: String
   rank: String!
 }
 
@@ -49,6 +49,7 @@ type Mutation {
 }
 
 type Player {
+  active: Boolean!
   avatarUrl: String
   balance: Int
   cards: [Card!]
