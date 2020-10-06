@@ -1,10 +1,15 @@
 require 'rails_helper'
 
 RSpec.describe 'Room query', type: :queries do
-  it 'full query' do
+  # A fake implementation of the context[:channel] required in order subscriptions to work
+  let(:channel) do
+    double('channel', stream_from: Object.new)
+  end
+
+  it 'returns the requested room' do
     query = <<~GRAPHQL
-      query ($roomId: ID!) {
-        getRoom(id: $roomId) {
+      subscription ($roomId: ID!) {
+        getRoom(roomId: $roomId) {
           id
           currentGame {
             id
@@ -13,7 +18,7 @@ RSpec.describe 'Room query', type: :queries do
               id
             }
             currentStage
-            gameEnded
+            isFinished
             smallBlind
             bigBlind
             pot
@@ -47,7 +52,7 @@ RSpec.describe 'Room query', type: :queries do
     game = Game.create!(state: game_state, room: room, version: SecureRandom.uuid)
     room.update!(current_game: game, seats: [user.id, another_user.id])
 
-    response = graphql_execute(query, variables: { 'roomId' => room.id }, context: { current_user: user })
+    response = graphql_execute(query, variables: { 'roomId' => room.id }, context: { current_user: user, channel: channel })
 
     game.reload
 
@@ -60,7 +65,7 @@ RSpec.describe 'Room query', type: :queries do
           'id' => user.id.to_s,
         },
         'currentStage' => 'preflop',
-        'gameEnded' => false,
+        'isFinished' => false,
         'smallBlind' => 5.0,
         'bigBlind' => 10.0,
         'pot' => 15.0,
@@ -87,10 +92,10 @@ RSpec.describe 'Room query', type: :queries do
     })
   end
 
-  it "the players' cards are obfuscated" do
+  it "players' cards are obfuscated" do
     query = <<~GRAPHQL
-      query ($roomId: ID!) {
-        getRoom(id: $roomId) {
+      subscription ($roomId: ID!) {
+        getRoom(roomId: $roomId) {
           id
           currentGame {
             id
@@ -114,7 +119,7 @@ RSpec.describe 'Room query', type: :queries do
     game = Game.create!(state: game_state, room: room, version: SecureRandom.uuid)
     room.update!(current_game: game, seats: [user.id, another_user.id])
 
-    response = graphql_execute(query, variables: { 'roomId' => room.id }, context: { current_user: user })
+    response = graphql_execute(query, variables: { 'roomId' => room.id }, context: { current_user: user, channel: channel })
 
     game.reload
 
@@ -125,11 +130,11 @@ RSpec.describe 'Room query', type: :queries do
         'players' => contain_exactly(
           {
             'id' => user.id.to_s,
-            'cards' => [],
+            'cards' => [{ 'color' => nil, 'rank' => 'hidden' }, { 'color' => nil, 'rank' => 'hidden' }],
           },
           {
             'id' => another_user.id.to_s,
-            'cards' => [],
+            'cards' => [{ 'color' => nil, 'rank' => 'hidden' }, { 'color' => nil, 'rank' => 'hidden' }],
           },
         )
       }

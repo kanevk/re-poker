@@ -62,7 +62,6 @@ type Player {
 }
 
 type Query {
-  getRoom(id: ID! = "false"): Room!
   isAuthenticated: Boolean!
   rooms: [Room!]!
 }
