@@ -13,7 +13,7 @@ gem 'bootsnap', '>= 1.4.2', require: false
 gem 'graphql', '1.9.18'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem 'rack-cors'
-gem 'poker-engine', '>= 1.1.1'
+gem 'poker-engine', git: 'git@github.com:kanevk/poker-engine.git', branch: 'bugfix/next-player-infinite-loop'
 gem 'bcrypt', '~> 3.1', '>= 3.1.12'
 gem 'jwt'
 gem 'sidekiq', '~> 6.1.0'
