@@ -51,8 +51,11 @@ RSpec.configure do |config|
     DatabaseCleaner.cleaning { example.run }
   end
 
-  config.include GraphqlSupport, type: :queries
-  config.include GraphqlSupport, type: :mutations
+  config.include GraphqlSupport, type: :graphql
+
+  config.define_derived_metadata(:file_path => Regexp.new('/spec/graphql/')) do |metadata|
+    metadata[:type] = :graphql
+  end
 
 
   # RSpec Rails can automatically mix in different behaviours to your tests

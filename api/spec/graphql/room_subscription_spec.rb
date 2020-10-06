@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'Room query', type: :queries do
+RSpec.describe 'Room query' do
   # A fake implementation of the context[:channel] required in order subscriptions to work
   let(:channel) do
     double('channel', stream_from: Object.new)
