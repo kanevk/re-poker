@@ -15,6 +15,7 @@ const RoomPage = () => {
   const { data: { getRoom } = {}, loading, error } = useSubscription(GET_ROOM_SUBSCRIPTION, {
     variables: { roomId },
   });
+
   const [_makeMove] = useMutation(MAKE_MOVE_MUTATION);
 
   const makeMove = ({ move, bet, xPlayerId }) => {
@@ -31,7 +32,7 @@ const RoomPage = () => {
     throw new Error(error);
   }
 
-  if (loading || !getRoom) {
+  if (loading) {
     console.log('Loading...');
     return 'Loading...';
   }

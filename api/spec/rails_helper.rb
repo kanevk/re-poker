@@ -1,6 +1,7 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
 require 'graphql_support'
+require 'sidekiq/testing'
 
 ENV['RAILS_ENV'] ||= 'test'
 
@@ -45,6 +46,10 @@ RSpec.configure do |config|
 
   config.before(:suite) do
     DatabaseCleaner.strategy = :truncation
+  end
+
+  config.before(:each) do
+    Sidekiq::Worker.clear_all
   end
 
   config.around(:each) do |example|
