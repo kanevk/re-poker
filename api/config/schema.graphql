@@ -69,6 +69,7 @@ type Query {
 type Room {
   currentGame: Game!
   id: ID!
+  moveTimeLimit: Int!
   name: ID!
 }
 

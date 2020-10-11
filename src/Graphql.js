@@ -39,6 +39,7 @@ const FULL_PLAYER_FRAGMENT = gql`
 const GET_ROOM_SUBSCRIPTION = gql`
   subscription($roomId: ID!) {
     getRoom(roomId: $roomId) {
+      moveTimeLimit
       currentGame {
         version
         currentPlayer {
