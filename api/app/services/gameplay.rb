@@ -1,7 +1,10 @@
 module Gameplay
+  MOVE_TIME_LIMIT = 5.seconds
+
   def self.start_game(room_id)
     room = Room.find(room_id)
-    players = User.find(room.seats).map { |u| { id: u.id, balance: u.balance } }
+    users = User.find(room.seats)
+    players = users.map { |u| { id: u.id, balance: u.balance } }
 
     seed = (SecureRandom.rand * 100_000).to_i
 
@@ -12,7 +15,10 @@ module Gameplay
     game = Game.create!(room: room, state: state)
     room.update!(current_game: game)
 
-    AssertPlayerMoveJob.perform_in(15.seconds, game_version: game.version, player_id: state[:last_action][:player_id])
+    MakeBotMove.set(wait: MOVE_TIME_LIMIT - 1)
+               .perform_later(game_version: game.version, player_id: state[:last_action][:player_id])
+    AssertPlayerMoveJob.set(wait: MOVE_TIME_LIMIT)
+                       .perform_later(game_version: game.version, player_id: state[:last_action][:player_id])
     true
   end
 
@@ -22,16 +28,17 @@ module Gameplay
     new_state = nil
     Timeout.timeout(100) do
       new_state = PokerEngine::Game.next(game.state, player_id: game.state[:current_player_id],
-                                                      type: move,
-                                                      bet: bet)
+                                                     type: move,
+                                                     bet: bet)
     end
     # TODO: sync users balances
-    game.update_state(new_state)
+    game.update!(state: new_state)
 
     if new_state[:game_ended]
-      StartNewGameJob.perform_async(room_id: game.room_id)
+      StartNewGameJob.perform_later(room_id: game.room_id)
     else
-      AssertPlayerMoveJob.perform_in(15.seconds, game_version: game.version, player_id: new_state[:last_action][:player_id])
+      AssertPlayerMoveJob.set(wait: MOVE_TIME_LIMIT)
+                         .perform_later(game_version: game.version, player_id: new_state[:last_action][:player_id])
     end
 
     game

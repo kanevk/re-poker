@@ -18,7 +18,7 @@ RSpec.describe AssertPlayerMoveJob do
     expect(ApiSchema.subscriptions).to receive(:trigger).with(:get_room, { room_id: game.room_id }, nil)
 
     Sidekiq::Testing.inline! do
-      AssertPlayerMoveJob.perform_async(game_version: game.version, player_id: game.state[:current_player_id])
+      AssertPlayerMoveJob.perform_later(game_version: game.version, player_id: game.state[:current_player_id])
     end
   end
 
@@ -27,7 +27,7 @@ RSpec.describe AssertPlayerMoveJob do
       .to receive(:make_move).with(game.version, player_id: game.state[:current_player_id], move: :fold)
 
     Sidekiq::Testing.inline! do
-      AssertPlayerMoveJob.perform_async(game_version: game.version, player_id: game.state[:current_player_id])
+      AssertPlayerMoveJob.perform_later(game_version: game.version, player_id: game.state[:current_player_id])
     end
   end
 
@@ -36,7 +36,7 @@ RSpec.describe AssertPlayerMoveJob do
 
     Sidekiq::Testing.inline! do
       expect do
-        AssertPlayerMoveJob.perform_async(game_version: 'next-version', player_id: game.state[:current_player_id])
+        AssertPlayerMoveJob.perform_later(game_version: 'next-version', player_id: game.state[:current_player_id])
       end.to raise_exception(ActiveRecord::RecordNotFound)
     end
   end
