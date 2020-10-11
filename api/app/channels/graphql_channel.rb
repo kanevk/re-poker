@@ -20,7 +20,8 @@ class GraphqlChannel < ApplicationCable::Channel
       query,
       variables: variables,
       context: context,
-      operation_name: operation_name)
+      operation_name: operation_name
+    )
 
     payload = {
       result: result.to_h,

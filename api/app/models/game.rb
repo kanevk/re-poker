@@ -15,7 +15,9 @@ class Game < ApplicationRecord
   belongs_to :room
   serialize :state
 
-  def update_state(new_state)
-    update!(state: new_state, version: SecureRandom.uuid)
+  before_save :set_version
+
+  def set_version
+    self.version = SecureRandom.uuid
   end
 end

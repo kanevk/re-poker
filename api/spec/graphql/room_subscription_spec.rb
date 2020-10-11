@@ -47,8 +47,8 @@ RSpec.describe 'Room query' do
     room = Room.create!(name: 'name', small_blind: 5, big_blind: 10)
 
     game_state = PokerEngine::Game.start(players, small_blind: room.small_blind,
-                                                           big_blind: room.big_blind,
-                                                           deck_seed: rand(1..1_000))
+                                                  big_blind: room.big_blind,
+                                                  deck_seed: rand(1..1_000))
     game = Game.create!(state: game_state, room: room, version: SecureRandom.uuid)
     room.update!(current_game: game, seats: [user.id, another_user.id])
 
