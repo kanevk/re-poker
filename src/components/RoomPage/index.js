@@ -37,11 +37,11 @@ const RoomPage = () => {
     return 'Loading...';
   }
 
-  const { currentGame: game } = getRoom;
+  const { currentGame: game, moveTimeLimit } = getRoom;
 
   return (
     <div className={cx('room')}>
-      <Table game={game} />
+      <Table game={game} moveTimeLimit={moveTimeLimit} />
       <div className={cx('footer')}>
         <div />
         {game.currentPlayer?.isInTurn && <TurnMenu minRaiseAmount={200} makeMove={makeMove} />}
@@ -76,9 +76,10 @@ Table.propTypes = {
     players: PropTypes.arrayOf(PlayerType),
     boardCards: PropTypes.arrayOf(CardType),
   }),
+  moveTimeLimit: PropTypes.number.isRequired,
 };
 
-function Table({ game }) {
+function Table({ game, moveTimeLimit }) {
   console.log(game);
 
   return (
@@ -99,7 +100,14 @@ function Table({ game }) {
             />
           );
         }
-        return <Seat key={player.seatNumber} player={player} smallBlind={game.smallBlind} />;
+        return (
+          <Seat
+            key={player.seatNumber}
+            player={player}
+            smallBlind={game.smallBlind}
+            moveTimeLimit={moveTimeLimit}
+          />
+        );
       })}
       <div className={cx('common-cards')}>
         {game.boardCards.map(imgSlugForCard).map((slug) => (
@@ -185,15 +193,16 @@ function PlayerChips({ smallBlind, betAmount, classes }) {
 Seat.propTypes = {
   player: PlayerType,
   smallBlind: PropTypes.bool.isRequired,
+  moveTimeLimit: PropTypes.number.isRequired,
 };
-function Seat({ player, smallBlind }) {
-  const [countdownSeconds, setCountdownSeconds] = useState(15);
+function Seat({ player, smallBlind, moveTimeLimit }) {
+  const [countdownSeconds, setCountdownSeconds] = useState(moveTimeLimit);
   const firstCard = player.cards[0];
   const secondCard = player.cards[1];
 
   useEffect(() => {
     if (!player.isInTurn) {
-      setCountdownSeconds(15);
+      setCountdownSeconds(moveTimeLimit);
       return;
     }
 
@@ -205,7 +214,7 @@ function Seat({ player, smallBlind }) {
   }, [player.isInTurn, countdownSeconds]);
 
   const { seatClass, infoBoxPosition, dealerClass, chipsClass } = seatStyles[player.seatNumber];
-  const countdownClasses = cx({ 'time-bar': true, red: countdownSeconds < 5 });
+  const countdownClasses = cx({ 'time-bar': true, red: countdownSeconds < 3 });
   const seatClasses = cx({ seat: true, [seatClass]: true, inactive: !player.active });
 
   return (
@@ -239,7 +248,11 @@ function Seat({ player, smallBlind }) {
             />
           </div>
           {player.isInTurn ? (
-            <progress value={countdownSeconds * 2} max="30" className={countdownClasses} />
+            <progress
+              value={countdownSeconds * 2}
+              max={moveTimeLimit * 2}
+              className={countdownClasses}
+            />
           ) : null}
         </div>
       </div>
