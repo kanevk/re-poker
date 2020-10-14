@@ -1,6 +1,10 @@
 name: Backend tests & lint
 
 on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'api/*'
   pull_request:
     branches: [ master ]
     paths:
