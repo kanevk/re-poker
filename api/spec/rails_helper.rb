@@ -1,6 +1,7 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
 require 'graphql_support'
+require 'sidekiq/testing'
 
 ENV['RAILS_ENV'] ||= 'test'
 
@@ -47,12 +48,19 @@ RSpec.configure do |config|
     DatabaseCleaner.strategy = :truncation
   end
 
+  config.before(:each) do
+    Sidekiq::Worker.clear_all
+  end
+
   config.around(:each) do |example|
     DatabaseCleaner.cleaning { example.run }
   end
 
-  config.include GraphqlSupport, type: :queries
-  config.include GraphqlSupport, type: :mutations
+  config.include GraphqlSupport, type: :graphql
+
+  config.define_derived_metadata(:file_path => Regexp.new('/spec/graphql/')) do |metadata|
+    metadata[:type] = :graphql
+  end
 
 
   # RSpec Rails can automatically mix in different behaviours to your tests

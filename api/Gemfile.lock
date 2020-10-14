@@ -1,3 +1,11 @@
+GIT
+  remote: git@github.com:kanevk/poker-engine.git
+  revision: 179207537ba4b553a87abad3076fe3fd2cb2ae1b
+  branch: bugfix/next-player-infinite-loop
+  specs:
+    poker-engine (1.1.2)
+      hamster (~> 3.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -111,8 +119,6 @@ GEM
     nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
     pg (1.2.3)
-    poker-engine (1.1.1)
-      hamster (~> 3.0)
     pry (0.13.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -214,7 +220,7 @@ DEPENDENCIES
   jwt
   listen (~> 3.2)
   pg (>= 0.18, < 2.0)
-  poker-engine (>= 1.1.1)
+  poker-engine!
   pry-byebug
   puma (~> 4.1)
   rack-cors

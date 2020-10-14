@@ -1,29 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { gql, useMutation, useSubscription } from '@apollo/client';
+import { useMutation, useSubscription } from '@apollo/client';
 import classNames from 'classnames/bind';
 import { useParams } from 'react-router-dom';
 
 import TurnMenu from './TurnMenu';
-import { GET_ROOM_SUBSCRIPTION } from '../../Graphql';
+import { GET_ROOM_SUBSCRIPTION, MAKE_MOVE_MUTATION } from '../../Graphql';
 import styles from './index.module.scss';
 
 const cx = classNames.bind(styles);
-
-const TRIGGER_SUBSCRIPTION = gql`
-  mutation($input: MakeMoveInput!) {
-    makeMove(input: $input) {
-      success
-    }
-  }
-`;
 
 const RoomPage = () => {
   const { roomId } = useParams();
   const { data: { getRoom } = {}, loading, error } = useSubscription(GET_ROOM_SUBSCRIPTION, {
     variables: { roomId },
   });
-  const [_makeMove] = useMutation(TRIGGER_SUBSCRIPTION);
+
+  const [_makeMove] = useMutation(MAKE_MOVE_MUTATION);
 
   const makeMove = ({ move, bet, xPlayerId }) => {
     _makeMove({
@@ -39,16 +32,16 @@ const RoomPage = () => {
     throw new Error(error);
   }
 
-  if (loading || !getRoom) {
+  if (loading) {
     console.log('Loading...');
     return 'Loading...';
   }
 
-  const { currentGame: game } = getRoom;
+  const { currentGame: game, moveTimeLimit } = getRoom;
 
   return (
     <div className={cx('room')}>
-      <Table game={game} />
+      <Table game={game} moveTimeLimit={moveTimeLimit} />
       <div className={cx('footer')}>
         <div />
         {game.currentPlayer?.isInTurn && <TurnMenu minRaiseAmount={200} makeMove={makeMove} />}
@@ -57,7 +50,36 @@ const RoomPage = () => {
   );
 };
 
-const Table = ({ game }) => {
+const CardType = {
+  color: PropTypes.string,
+  rank: PropTypes.string.isRequired,
+};
+
+const PlayerType = PropTypes.shape({
+  id: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  seatNumber: PropTypes.number.isRequired,
+  active: PropTypes.bool.isRequired,
+  isInTurn: PropTypes.bool.isRequired,
+  cards: PropTypes.arrayOf(CardType),
+  position: PropTypes.string.isRequired,
+  balance: PropTypes.number.isRequired,
+  moneyInPot: PropTypes.number.isRequired,
+});
+
+Table.propTypes = {
+  game: PropTypes.shape({
+    pot: PropTypes.number.isRequired,
+    smallBlind: PropTypes.number.isRequired,
+    bigBlind: PropTypes.number.isRequired,
+    currentPlayer: PlayerType,
+    players: PropTypes.arrayOf(PlayerType),
+    boardCards: PropTypes.arrayOf(CardType),
+  }),
+  moveTimeLimit: PropTypes.number.isRequired,
+};
+
+function Table({ game, moveTimeLimit }) {
   console.log(game);
 
   return (
@@ -78,7 +100,14 @@ const Table = ({ game }) => {
             />
           );
         }
-        return <Seat key={player.seatNumber} player={player} smallBlind={game.smallBlind} />;
+        return (
+          <Seat
+            key={player.seatNumber}
+            player={player}
+            smallBlind={game.smallBlind}
+            moveTimeLimit={moveTimeLimit}
+          />
+        );
       })}
       <div className={cx('common-cards')}>
         {game.boardCards.map(imgSlugForCard).map((slug) => (
@@ -87,28 +116,7 @@ const Table = ({ game }) => {
       </div>
     </div>
   );
-};
-
-const PlayerType = {
-  id: PropTypes.string.isRequired,
-  seatNumber: PropTypes.number.isRequired,
-};
-
-const CardType = {
-  color: PropTypes.string.isRequired,
-  rank: PropTypes.string.isRequired,
-};
-
-Table.propTypes = {
-  game: PropTypes.shape({
-    pot: PropTypes.number.isRequired,
-    smallBlind: PropTypes.number.isRequired,
-    bigBlind: PropTypes.number.isRequired,
-    currentPlayer: PropTypes.instanceOf(PlayerType),
-    players: PropTypes.arrayOf(PlayerType),
-    boardCards: PropTypes.arrayOf(CardType),
-  }),
-};
+}
 
 const seatStyles = {
   0: {
@@ -183,17 +191,18 @@ function PlayerChips({ smallBlind, betAmount, classes }) {
 }
 
 Seat.propTypes = {
-  player: PropTypes.instanceOf(PlayerType),
+  player: PlayerType,
   smallBlind: PropTypes.bool.isRequired,
+  moveTimeLimit: PropTypes.number.isRequired,
 };
-function Seat({ player, smallBlind }) {
-  const [countdownSeconds, setCountdownSeconds] = useState(15);
-  const firstCard = player.cards[0] || { rank: 'back' };
-  const secondCard = player.cards[1] || { rank: 'back' };
+function Seat({ player, smallBlind, moveTimeLimit }) {
+  const [countdownSeconds, setCountdownSeconds] = useState(moveTimeLimit);
+  const firstCard = player.cards[0];
+  const secondCard = player.cards[1];
 
   useEffect(() => {
     if (!player.isInTurn) {
-      setCountdownSeconds(15);
+      setCountdownSeconds(moveTimeLimit);
       return;
     }
 
@@ -205,7 +214,8 @@ function Seat({ player, smallBlind }) {
   }, [player.isInTurn, countdownSeconds]);
 
   const { seatClass, infoBoxPosition, dealerClass, chipsClass } = seatStyles[player.seatNumber];
-  const countdownClasses = cx({ 'time-bar': true, red: countdownSeconds < 5 });
+  const countdownClasses = cx({ 'time-bar': true, red: countdownSeconds < 3 });
+  const seatClasses = cx({ seat: true, [seatClass]: true, inactive: !player.active });
 
   return (
     <div key={player.id}>
@@ -217,7 +227,7 @@ function Seat({ player, smallBlind }) {
         />
       )}
       <PlayerChips classes={[chipsClass]} smallBlind={smallBlind} betAmount={player.moneyInPot} />
-      <div className={cx('seat', seatClass)}>
+      <div className={seatClasses}>
         <div className={cx('avatar')}>
           {' '}
           <img src="/avatars/business-man-avatar.png" alt="business-man-avatar" />{' '}
@@ -238,7 +248,11 @@ function Seat({ player, smallBlind }) {
             />
           </div>
           {player.isInTurn ? (
-            <progress value={countdownSeconds * 2} max="30" className={countdownClasses} />
+            <progress
+              value={countdownSeconds * 2}
+              max={moveTimeLimit * 2}
+              className={countdownClasses}
+            />
           ) : null}
         </div>
       </div>
@@ -247,7 +261,7 @@ function Seat({ player, smallBlind }) {
 }
 
 const imgSlugForCard = ({ rank, color }) => {
-  if (rank === 'back') return 'back';
+  if (rank === 'hidden') return 'back';
 
   const rankToPath = {
     A: '1',

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'Authentication mutations', type: :mutations do
+RSpec.describe 'Authentication mutations' do
   it '#signin_user' do
     user = User.create!(name: 'name', password: 'pass', balance: 100)
 

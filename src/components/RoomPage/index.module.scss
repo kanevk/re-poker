@@ -15,6 +15,7 @@ $dark-blue: #013b74;
   height: 100vh;
   max-height: 100vh;
   background-size: 100vw 100vh;
+  background-color: black;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -107,9 +108,12 @@ $chip-size: 16px;
 }
 
 .seat {
-  z-index: 0; // creates new stacking order
+  z-index: 0; // creates new stacking frame
   position: absolute;
 }
+
+.seat.inactive .info-box { opacity: 0.5; }
+.seat.inactive .cards-wrapper { display: none; }
 
 .top-right { right: $ellipse-diameter / 2 - $avatar-width; top: calc(0% - #{$avatar-height} - 20px); }
 .top-left { left: $ellipse-diameter / 2 - $avatar-width; top: calc(0% - #{$avatar-height} - 20px) ; }
