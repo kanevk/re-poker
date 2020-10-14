@@ -13,7 +13,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1.47.0
-
       with:
         bundler-cache: false
         ruby-version: '2.6'
@@ -30,3 +29,21 @@ jobs:
       run: cd api && bundle exec rails db:setup
     - name: Run tests
       run: cd api && bundle exec rspec -fd
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1.47.0
+      with:
+        bundler-cache: false
+        ruby-version: '2.6'
+    - uses: actions/cache@v2
+      with:
+        path: api/vendor/bundle
+        key: ${{ runner.os }}-gems-${{ hashFiles('api/Gemfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-gems-
+    - run: cd api && bundle install --path ./vendor/bundle
+    - run: cd api && bundle exec rubocop
