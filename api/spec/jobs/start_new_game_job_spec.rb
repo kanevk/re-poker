@@ -15,7 +15,8 @@ RSpec.describe StartNewGameJob do
   end
 
   it do
-    expect(ApiSchema.subscriptions).to receive(:trigger).with(:get_room, { room_id: game.room_id }, nil)
+    expect(ApiSchema.subscriptions)
+      .to receive(:trigger).with(:get_room, { room_id: game.room_id }, nil)
 
     Sidekiq::Testing.inline! do
       StartNewGameJob.perform_later(room_id: room.id)

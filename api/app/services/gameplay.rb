@@ -36,7 +36,8 @@ module Gameplay
       StartNewGameJob.perform_later(room_id: game.room_id)
     else
       AssertPlayerMoveJob.set(wait: MOVE_TIME_LIMIT)
-                         .perform_later(game_version: game.version, player_id: new_state[:last_action][:player_id])
+                         .perform_later(game_version: game.version,
+                                        player_id: new_state[:last_action][:player_id])
     end
 
     game

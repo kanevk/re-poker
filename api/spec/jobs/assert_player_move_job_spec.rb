@@ -36,7 +36,8 @@ RSpec.describe AssertPlayerMoveJob do
 
     Sidekiq::Testing.inline! do
       expect do
-        AssertPlayerMoveJob.perform_later(game_version: 'next-version', player_id: game.state[:current_player_id])
+        AssertPlayerMoveJob.perform_later(game_version: 'next-version',
+                                          player_id: game.state[:current_player_id])
       end.to raise_exception(ActiveRecord::RecordNotFound)
     end
   end

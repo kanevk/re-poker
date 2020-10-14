@@ -52,7 +52,8 @@ RSpec.describe 'Room query' do
     game = Game.create!(state: game_state, room: room, version: SecureRandom.uuid)
     room.update!(current_game: game, seats: [user.id, another_user.id])
 
-    response = graphql_execute(query, variables: { 'roomId' => room.id }, context: { current_user: user, channel: channel })
+    response = graphql_execute(query, variables: { 'roomId' => room.id },
+                                      context: { current_user: user, channel: channel })
 
     game.reload
 
@@ -87,8 +88,8 @@ RSpec.describe 'Room query' do
             'position' => 'BB',
             'seatNumber' => 1,
           },
-        )
-      }
+        ),
+      },
     })
   end
 
@@ -119,7 +120,8 @@ RSpec.describe 'Room query' do
     game = Game.create!(state: game_state, room: room, version: SecureRandom.uuid)
     room.update!(current_game: game, seats: [user.id, another_user.id])
 
-    response = graphql_execute(query, variables: { 'roomId' => room.id }, context: { current_user: user, channel: channel })
+    response = graphql_execute(query, variables: { 'roomId' => room.id },
+                                      context: { current_user: user, channel: channel })
 
     game.reload
 
@@ -130,14 +132,20 @@ RSpec.describe 'Room query' do
         'players' => contain_exactly(
           {
             'id' => user.id.to_s,
-            'cards' => [{ 'color' => nil, 'rank' => 'hidden' }, { 'color' => nil, 'rank' => 'hidden' }],
+            'cards' => [
+              { 'color' => nil, 'rank' => 'hidden' },
+              { 'color' => nil, 'rank' => 'hidden' }
+            ],
           },
           {
             'id' => another_user.id.to_s,
-            'cards' => [{ 'color' => nil, 'rank' => 'hidden' }, { 'color' => nil, 'rank' => 'hidden' }],
+            'cards' => [
+              { 'color' => nil, 'rank' => 'hidden' },
+              { 'color' => nil, 'rank' => 'hidden' }
+            ],
           },
-        )
-      }
+        ),
+      },
     })
   end
 end

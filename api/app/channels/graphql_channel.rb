@@ -63,7 +63,7 @@ class GraphqlChannel < ApplicationCable::Channel
   def current_user
     user_id = AuthToken.decode(params['token'])[:user_id]
 
-    raise GraphQL::ExecutionError.new("Wrong authentication token!") unless user_id
+    raise GraphQL::ExecutionError, "Wrong authentication token!" unless user_id
 
     User.find user_id
   end

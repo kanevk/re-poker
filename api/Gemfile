@@ -13,7 +13,8 @@ gem 'bootsnap', '>= 1.4.2', require: false
 gem 'graphql', '1.9.18'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem 'rack-cors'
-gem 'poker-engine', git: 'https://github.com/kanevk/poker-engine.git', branch: 'bugfix/next-player-infinite-loop'
+gem 'poker-engine', git: 'https://github.com/kanevk/poker-engine.git',
+                    branch: 'bugfix/next-player-infinite-loop'
 gem 'bcrypt', '~> 3.1', '>= 3.1.12'
 gem 'jwt'
 gem 'sidekiq', '~> 6.1.0'
@@ -39,6 +40,7 @@ group :development do
   gem 'annotate'
   gem 'rb-fsevent'
   gem 'rerun'
+  gem 'rubocop', '~> 0.93.1', require: false
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
