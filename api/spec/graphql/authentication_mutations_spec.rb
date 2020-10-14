@@ -13,7 +13,7 @@ RSpec.describe 'Authentication mutations' do
       }
     GRAPHQL
 
-    response = graphql_execute(mutation, variables: {username: 'name', password: 'pass'}, context: {})
+    response = graphql_execute(mutation, variables: { username: 'name', password: 'pass' }, context: {})
 
     expect(response[:errors]).to be_blank
     token = response.dig('data', 'signinUser', 'token')
