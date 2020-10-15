@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "husky": "^4.3.0",
+    "lint-staged": "^10.4.0"
+  },
+  "lint-staged": {
+    "client/**/*.{js,jsx}": [
+      "yarn --cwd client/ run eslint ."
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
+}
