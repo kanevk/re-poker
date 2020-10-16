@@ -4,11 +4,15 @@ on:
   push:
     branches: [ master ]
     paths:
-      - 'api/*'
+      - 'api/**'
   pull_request:
     branches: [ master ]
     paths:
-      - 'api/*'
+      - 'api/**'
+
+defaults:
+  run:
+    working-directory: api
 
 jobs:
   specs:
@@ -26,13 +30,13 @@ jobs:
         key: ${{ runner.os }}-gems-${{ hashFiles('api/Gemfile.lock') }}
         restore-keys: |
           ${{ runner.os }}-gems-
-    - run: cd api && bundle install --path ./vendor/bundle
+    - run: bundle install --path ./vendor/bundle
     - name: Run service dependencies
-      run: cd api && docker-compose up -d
+      run: docker-compose up -d
     - name: Create and setup the database
-      run: cd api && bundle exec rails db:setup
+      run: bundle exec rails db:setup
     - name: Run tests
-      run: cd api && bundle exec rspec -fd
+      run: bundle exec rspec -fd
 
   lint:
     runs-on: ubuntu-latest
@@ -49,5 +53,5 @@ jobs:
         key: ${{ runner.os }}-gems-${{ hashFiles('api/Gemfile.lock') }}
         restore-keys: |
           ${{ runner.os }}-gems-
-    - run: cd api && bundle install --path ./vendor/bundle
-    - run: cd api && bundle exec rubocop
+    - run: bundle install --path ./vendor/bundle
+    - run: bundle exec rubocop
