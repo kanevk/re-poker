@@ -3,15 +3,28 @@ module Gameplay
 
   def self.start_game(room_id)
     room = Room.find(room_id)
-    users = User.find(room.seats)
-    players = users.map { |u| { id: u.id, balance: u.balance } }
+    room_players = room.players
 
-    seed = (SecureRandom.rand * 100_000).to_i
+    return unless room_players.any?(&:active)
+
+    players =
+      # TODO: Extend for cases when players join and leaving the room
+      if room.current_game
+        ops = PokerEngine::StateOperations.new(room.current_game.state)
+        # FIXME: this works for preflop only
+        index_by_player_id = ops.ordered_player_ids.rotate.map.with_index.to_h
+
+        room_players
+          .each_with_object([]) { |pl, arr| arr[index_by_player_id.fetch(pl.id)] = pl }
+          .map { |pl| { id: pl.id, balance: pl.balance } }
+      else
+        room_players.order(:seat_number).map { |pl| { id: pl.id, balance: pl.balance } }
+      end
 
     state =
       PokerEngine::Game.start(players, small_blind: room.small_blind,
-                                       big_blind: room.small_blind,
-                                       deck_seed: seed)
+                                       big_blind: room.big_blind,
+                                       deck_seed: (SecureRandom.rand * 100_000).to_i)
     game = Game.create!(room: room, state: state)
     room.update!(current_game: game)
 

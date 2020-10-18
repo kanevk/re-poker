@@ -6,6 +6,9 @@ RSpec.describe 'Room query' do
     double('channel', stream_from: Object.new)
   end
 
+  let!(:user) { User.create!(name: 'bob', balance: 100, password: '1') }
+  let!(:another_user) { User.create!(name: 'maria', balance: 200, password: '1') }
+
   it 'returns the requested room' do
     query = <<~GRAPHQL
       subscription ($roomId: ID!) {
@@ -36,26 +39,11 @@ RSpec.describe 'Room query' do
       }
     GRAPHQL
 
-    user = User.create!(name: 'bob', balance: 100, password: '1')
-    another_user = User.create!(name: 'maria', balance: 200, password: '1')
-
-    players = [
-      { id: user.id, balance: 100 },
-      { id: another_user.id, balance: 200 },
-    ]
-
-    room = Room.create!(name: 'name', small_blind: 5, big_blind: 10)
-
-    game_state = PokerEngine::Game.start(players, small_blind: room.small_blind,
-                                                  big_blind: room.big_blind,
-                                                  deck_seed: rand(1..1_000))
-    game = Game.create!(state: game_state, room: room, version: SecureRandom.uuid)
-    room.update!(current_game: game, seats: [user.id, another_user.id])
+    room, room_players = create_room_bundle([user, another_user], name: 'name', small_blind: 5, big_blind: 10)
+    game = create_game(room, room_players)
 
     response = graphql_execute(query, variables: { 'roomId' => room.id },
                                       context: { current_user: user, channel: channel })
-
-    game.reload
 
     expect(response).to resolve_successfully('getRoom').with({
       'id' => room.id.to_s,
@@ -109,16 +97,8 @@ RSpec.describe 'Room query' do
       }
     GRAPHQL
 
-    user = User.create!(name: 'bob', balance: 100, password: '1')
-    another_user = User.create!(name: 'maria', balance: 200, password: '1')
-    players = [ { id: user.id, balance: 100 }, { id: another_user.id, balance: 200 } ]
-
-    room = Room.create!(name: 'name', small_blind: 5, big_blind: 10)
-    game_state = PokerEngine::Game.start(players, small_blind: room.small_blind,
-                                                  big_blind: room.big_blind,
-                                                  deck_seed: rand(1..1_000))
-    game = Game.create!(state: game_state, room: room, version: SecureRandom.uuid)
-    room.update!(current_game: game, seats: [user.id, another_user.id])
+    room, room_players = create_room_bundle([user, another_user], name: 'name', small_blind: 5, big_blind: 10)
+    game = create_game(room, room_players)
 
     response = graphql_execute(query, variables: { 'roomId' => room.id },
                                       context: { current_user: user, channel: channel })
@@ -147,5 +127,34 @@ RSpec.describe 'Room query' do
         ),
       },
     })
+  end
+
+  def create_room_bundle(users, **room_attributes)
+    room = Room.create!(room_attributes)
+    room_players = users.map.with_index do |user, i|
+      RoomPlayer.create!(
+        user: user,
+        room: room,
+        balance: user.balance,
+        active: true,
+        bot_strategy: :none,
+        seat_number: i
+      )
+    end
+
+    [room, room_players]
+  end
+
+  def create_game(room, room_players)
+    players = room_players.map { |o| o.slice(:id, :balance) }.map(&:symbolize_keys)
+    game_state =
+      PokerEngine::Game.start(players, small_blind: room.small_blind,
+                                       big_blind: room.big_blind,
+                                       deck_seed: 1)
+
+    game = Game.create!(state: game_state, room: room)
+    room.update!(current_game: game)
+
+    game
   end
 end

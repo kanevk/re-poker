@@ -4,14 +4,26 @@ users =
   end
 
 
-%w(heaven ocean river cotton salt sugar blue red).each do |room_name|
-  players = users.shuffle[0..5].map { |u| { id: u.id, balance: u.balance } }
+%w(heaven ocean river cotton salt sugar blue red).each_with_index do |room_name, room_index|
+  subset_users = users.shuffle[0..5]
 
-  room = Room.create!(name: room_name, small_blind: 5, big_blind: 10, seats: players.map { |pl| pl[:id] } )
+  room = Room.create!(name: room_name, small_blind: 5, big_blind: 10)
+  room_players = subset_users.map.with_index do |u, i|
+    RoomPlayer.create!(
+      user: u,
+      balance: u.balance / 4,
+      room: room,
+      active: false,
+      bot_strategy: :none,
+      seat_number: i
+    )
+  end
 
+  players = room_players.map { |rp| rp.slice(:id, :balance).symbolize_keys }
   game_state = PokerEngine::Game.start(players, small_blind: room.small_blind,
                                                 big_blind: room.big_blind,
-                                                deck_seed: 1)
+                                                deck_seed: room_index)
   game = Game.create!(state: game_state, room: room)
+
   room.update!(current_game: game)
 end

@@ -203,14 +203,18 @@ function Seat({ player, smallBlind, moveTimeLimit }) {
   useEffect(() => {
     if (!player.isInTurn) {
       setCountdownSeconds(moveTimeLimit);
-      return;
+      return () => {};
     }
 
-    if (countdownSeconds <= 0) return;
+    if (countdownSeconds <= 0) return () => {};
 
-    setTimeout(() => {
+    const tid = setTimeout(() => {
       setCountdownSeconds(countdownSeconds - 0.5);
     }, 500);
+
+    return () => {
+      clearTimeout(tid);
+    };
   }, [player.isInTurn, countdownSeconds]);
 
   const { seatClass, infoBoxPosition, dealerClass, chipsClass } = seatStyles[player.seatNumber];

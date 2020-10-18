@@ -165,7 +165,7 @@ Lint/UselessAssignment:
 # Offense count: 2
 # Configuration parameters: IgnoredMethods.
 Metrics/AbcSize:
-  Max: 21
+  Max: 40
 
 # Offense count: 5
 # Configuration parameters: CountComments, CountAsOne, ExcludedMethods.
@@ -176,7 +176,7 @@ Metrics/BlockLength:
 # Offense count: 6
 # Configuration parameters: CountComments, CountAsOne, ExcludedMethods.
 Metrics/MethodLength:
-  Max: 21
+  Max: 40
 
 # Offense count: 1
 # Configuration parameters: MinNameLength, AllowNamesEndingInNumbers, AllowedNames, ForbiddenNames.

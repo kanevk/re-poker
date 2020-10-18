@@ -4,9 +4,7 @@ RSpec.describe AssertPlayerMoveJob do
   let!(:users) do
     Array.new(2) { |i| User.create!(name: "name-#{i}", balance: 100, password: '1') }
   end
-  let!(:room) do
-    Room.create!(name: 'name', small_blind: 5, big_blind: 10, seats: users.map(&:id) )
-  end
+  let!(:room) { Room.create!(name: 'name', small_blind: 5, big_blind: 10) }
   let!(:game) { create_game(room: room, users: users) }
 
   before do

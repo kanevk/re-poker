@@ -141,6 +141,40 @@ ALTER SEQUENCE public.games_id_seq OWNED BY public.games.id;
 
 
 --
+-- Name: room_players; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.room_players (
+    id bigint NOT NULL,
+    user_id bigint,
+    room_id bigint NOT NULL,
+    balance numeric(15,2) NOT NULL,
+    active boolean NOT NULL,
+    bot_strategy character varying NOT NULL,
+    seat_number integer NOT NULL
+);
+
+
+--
+-- Name: room_players_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.room_players_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: room_players_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.room_players_id_seq OWNED BY public.room_players.id;
+
+
+--
 -- Name: rooms; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -151,8 +185,7 @@ CREATE TABLE public.rooms (
     big_blind numeric(15,2),
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    current_game_id bigint,
-    seats integer[] DEFAULT '{}'::integer[] NOT NULL
+    current_game_id bigint
 );
 
 
@@ -239,6 +272,13 @@ ALTER TABLE ONLY public.games ALTER COLUMN id SET DEFAULT nextval('public.games_
 
 
 --
+-- Name: room_players id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.room_players ALTER COLUMN id SET DEFAULT nextval('public.room_players_id_seq'::regclass);
+
+
+--
 -- Name: rooms id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -282,6 +322,14 @@ ALTER TABLE ONLY public.ar_internal_metadata
 
 ALTER TABLE ONLY public.games
     ADD CONSTRAINT games_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: room_players room_players_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.room_players
+    ADD CONSTRAINT room_players_pkey PRIMARY KEY (id);
 
 
 --
@@ -337,6 +385,20 @@ CREATE INDEX index_games_on_room_id ON public.games USING btree (room_id);
 
 
 --
+-- Name: index_room_players_on_room_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_room_players_on_room_id ON public.room_players USING btree (room_id);
+
+
+--
+-- Name: index_room_players_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_room_players_on_user_id ON public.room_players USING btree (user_id);
+
+
+--
 -- Name: index_rooms_on_current_game_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -349,6 +411,14 @@ CREATE INDEX index_rooms_on_current_game_id ON public.rooms USING btree (current
 
 ALTER TABLE ONLY public.rooms
     ADD CONSTRAINT fk_rails_2cb3c92cef FOREIGN KEY (current_game_id) REFERENCES public.games(id);
+
+
+--
+-- Name: room_players fk_rails_34aee3a1e2; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.room_players
+    ADD CONSTRAINT fk_rails_34aee3a1e2 FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -368,6 +438,14 @@ ALTER TABLE ONLY public.active_storage_attachments
 
 
 --
+-- Name: room_players fk_rails_de45a8b5f7; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.room_players
+    ADD CONSTRAINT fk_rails_de45a8b5f7 FOREIGN KEY (room_id) REFERENCES public.rooms(id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -380,6 +458,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200914142507'),
 ('20200914160056'),
 ('20200914181925'),
-('20200915085332');
+('20200915085332'),
+('20201016141322'),
+('20201018185108');
 
 
