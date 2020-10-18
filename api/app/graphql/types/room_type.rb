@@ -8,8 +8,8 @@ module Types
 
   class PlayerType < Types::BaseObject
     OBJECT = Struct.new(:id, :name, :active, :balance, :money_in_pot,
-                        :seat_number, :position, :avatar_url, :cards,
-                        :is_in_turn, keyword_init: true) do
+                        :seat_number, :position, :avatar_url, :cards, :is_in_turn,
+                        keyword_init: true) do
 
       def initialize(**kwargs)
         super(kwargs.slice(*members))
@@ -34,9 +34,11 @@ module Types
 
     field :current_player, PlayerType, null: true
     def current_player
-      player = @object.state[:players][@context[:current_user].id]
+      room_player = RoomPlayer.find_by(user: @context[:current_user], room_id: @object.room_id)
 
-      player ? resolve_player(player) : nil
+      return unless room_player
+
+      resolve_player(@object.state[:players][room_player.id])
     end
 
     field :current_stage, String, null: true
@@ -83,18 +85,23 @@ module Types
           ])
         end
         .map(&method(:resolve_player))
+        .sort_by(&:seat_number)
     end
 
     private
 
-    def resolve_player(player)
-      @context[:users_by_id] ||= User.find(@object.state[:players].keys).map { |u| [u.id, u] }.to_h
+    def resolve_player(player_data)
+      @context[:room_player_by_id] ||=
+        RoomPlayer.includes(:user).find(@object.state[:players].keys).map { |o| [o.id, o] }.to_h
 
-      user = @context[:users_by_id][player[:id]]
-      fields = player.merge(
-        name: user.name,
-        seat_number: @context[:seat_number_per_player_id][player[:id]],
-        is_in_turn: @object.state[:current_player_id] == player[:id]
+      id = player_data.fetch(:id)
+      room_player = @context[:room_player_by_id][id]
+
+      fields = player_data.merge(
+        name: room_player.user.name,
+        seat_number: room_player.seat_number,
+        is_in_turn: @object.state[:current_player_id] == id,
+        avatar_url: nil
       )
 
       Types::PlayerType::OBJECT.new(**fields)
@@ -106,12 +113,6 @@ module Types
     field :name, ID, null: false
 
     field :current_game, Types::GameType, null: false
-    def current_game(*args)
-      @context[:seat_number_per_player_id] = @object.seats.map.with_index.to_h
-
-      @object.current_game
-    end
-
     field :move_time_limit, Integer, null: false
     def move_time_limit
       Gameplay::MOVE_TIME_LIMIT
