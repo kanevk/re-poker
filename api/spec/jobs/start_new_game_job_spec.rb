@@ -8,7 +8,7 @@ RSpec.describe StartNewGameJob do
   let!(:game) { create_game(room: room, users: users) }
 
   before do
-    allow(Gameplay).to receive(:start_game)
+    allow(Gameplay).to receive(:start_game).and_return(true)
     allow(ApiSchema.subscriptions).to receive(:trigger)
   end
 

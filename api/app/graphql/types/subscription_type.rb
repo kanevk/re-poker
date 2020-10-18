@@ -3,11 +3,12 @@ class Types::GetRoomType < Subscriptions::BaseSubscription
   argument :room_id, ID, required: true
 
   def subscribe(room_id:)
+    context[:current_room_player] = RoomPlayer.find_by(room_id: room_id, user: context[:current_user])
     Room.find(room_id)
   end
 
   def update(room_id:)
-    Rails.logger.info("****** #{object}")
+    context[:current_room_player] = RoomPlayer.find_by(room_id: room_id, user: context[:current_user])
     Room.find(room_id)
   end
 

@@ -5,6 +5,8 @@ module Gameplay
     room = Room.find(room_id)
     room_players = room.players
 
+    return unless room_players.any?(&:active)
+
     players =
       # TODO: Extend for cases when players join and leaving the room
       if room.current_game

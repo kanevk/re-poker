@@ -1,13 +1,14 @@
 class GraphqlChannel < ApplicationCable::Channel
   def subscribed
-    @subscription_ids = []
+    raise 'Already defined subscription ID' if @subscription_id
+
+    @subscription_id = nil
   end
 
   def execute(data)
     query = data["query"]
     variables = ensure_hash(data["variables"])
     operation_name = data["operationName"]
-
     context = {
       # Re-implement whatever context methods you need
       # in this channel or ApplicationCable::Channel
@@ -30,18 +31,29 @@ class GraphqlChannel < ApplicationCable::Channel
 
     # Track the subscription here so we can remove it
     # on unsubscribe.
-    if result.context[:subscription_id]
-      @subscription_ids << result.context[:subscription_id]
+    @subscription_id = result.context[:subscription_id]
+    unless @subscription_id
+      raise "Missing subscription_id. Query: #{query};;\n variables: #{variables};;\n"
     end
+
+    player = context.fetch(:current_room_player)
+    player&.update!(active: true)
 
     transmit(payload)
   end
 
   def unsubscribed
-    @subscription_ids.each { |sid| ApiSchema.subscriptions.delete_subscription(sid) }
+    player = gql_context_for(@subscription_id).fetch(:current_room_player)
+    player&.update!(active: false)
+
+    ApiSchema.subscriptions.delete_subscription(@subscription_id)
   end
 
   private
+
+  def gql_context_for(subscription_id)
+    ApiSchema.subscriptions.read_subscription(subscription_id).fetch(:context)
+  end
 
   def ensure_hash(ambiguous_param)
     case ambiguous_param
