@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "b25c718b479e2c8c10c0b55eec216f08",
+    "revision": "e77e391b762ad6de295c8e187432aced",
     "url": "/re-poker/index.html"
   },
   {
-    "revision": "b978175776b5b021b2f2",
+    "revision": "1f5a0a8fc0390a188144",
     "url": "/re-poker/static/css/main.3057b34d.chunk.css"
   },
   {
@@ -12,8 +12,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/re-poker/static/js/2.0fdacd41.chunk.js"
   },
   {
-    "revision": "b978175776b5b021b2f2",
-    "url": "/re-poker/static/js/main.f3654bff.chunk.js"
+    "revision": "1f5a0a8fc0390a188144",
+    "url": "/re-poker/static/js/main.bc6a2ba0.chunk.js"
   },
   {
     "revision": "f055e1c3288b35d62115",
