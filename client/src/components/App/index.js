@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Switch, Redirect, useLocation } from 'react-router-dom';
 import classNames from 'classnames/bind';
 
@@ -24,23 +24,20 @@ const ScrollToTop = () => {
 };
 
 const App = () => {
-  // TODO: handle outdated tokens
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
-
   const { data: { currentUser } = {}, refetch: refetchCurrentUser } = useQuery(
     GET_CURRENT_USER_QUERY
   );
+  const isAuthenticated = !!currentUser;
 
   const handleSuccessLogin = (token) => {
     localStorage.setItem('token', token);
-    setIsAuthenticated(true);
     refetchCurrentUser();
   };
 
   return (
     <TalkProvider currentUser={currentUser} appId="tp5ifGlr">
       <div className={cx('main')}>
-        <Router>
+        <Router basename="/re-poker">
           <ScrollToTop />
           <Suspense fallback={<div>Loading...</div>}>
             <Switch>
@@ -66,11 +63,7 @@ const App = () => {
                 path="/rooms/:roomId"
                 exact
                 render={(routeProps) =>
-                  isAuthenticated ? (
-                    <RoomPage {...routeProps} currentUser={currentUser} />
-                  ) : (
-                    <Redirect to="/login" />
-                  )
+                  isAuthenticated ? <RoomPage {...routeProps} /> : <Redirect to="/login" />
                 }
               />
             </Switch>

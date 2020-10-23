@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom';
 import { Chatbox } from '../TalkJS';
 import TurnMenu from './TurnMenu';
 import Seat from './Seat';
-import { imgSlugForCard } from './utils';
+import { imgSlugForCard, staticUrl } from './utils';
 import { GameType } from './proptypes';
 import { GET_ROOM_SUBSCRIPTION, MAKE_MOVE_MUTATION } from '../../Graphql';
 
@@ -93,7 +93,7 @@ function Table({ game, moveTimeLimit }) {
       })}
       <div className={cx('common-cards')}>
         {game.boardCards.map(imgSlugForCard).map((slug) => (
-          <img className={cx('card')} src={`/cards/${slug}.png`} alt={slug} />
+          <img className={cx('card')} src={staticUrl(`re-poker/cards/${slug}.png`)} alt={slug} />
         ))}
       </div>
     </div>

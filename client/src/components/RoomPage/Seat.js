@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames/bind';
 
-import { imgSlugForCard } from './utils';
+import { imgSlugForCard, staticUrl } from './utils';
 import { PlayerType } from './proptypes';
 
 import styles from './index.module.scss';
@@ -68,13 +68,13 @@ function PlayerChips({ smallBlind, betAmount, classes }) {
       <div className={cx('chip-column')}>
         {!!blackChipsCount &&
           Array.from({ length: blackChipsCount }, () => (
-            <img src="/chips/chip-black.png" alt="blue-chip" className={cx('chip')} />
+            <img src={staticUrl('/chips/chip-black.png')} alt="blue-chip" className={cx('chip')} />
           ))}
       </div>
       <div className={cx('chip-column')}>
         {!!blueChipsCount &&
           Array.from({ length: blueChipsCount }, () => (
-            <img src="/chips/chip-blue.png" alt="blue-chip" className={cx('chip')} />
+            <img src={staticUrl('/chips/chip-blue.png')} alt="blue-chip" className={cx('chip')} />
           ))}
       </div>
     </div>
@@ -116,7 +116,7 @@ function Seat({ player, smallBlind, moveTimeLimit }) {
     <div key={player.id}>
       {player.position === 'D' && (
         <img
-          src="/chips/chip-dealer.png"
+          src={staticUrl('/chips/chip-dealer.png')}
           alt="dealer-chip"
           className={cx('dealer-chip', dealerClass)}
         />
@@ -125,19 +125,19 @@ function Seat({ player, smallBlind, moveTimeLimit }) {
       <div className={seatClasses}>
         <div className={cx('avatar')}>
           {' '}
-          <img src="/avatars/business-man-avatar.png" alt="business-man-avatar" />{' '}
+          <img src={staticUrl('avatars/business-man-avatar.png')} alt="business-man-avatar" />{' '}
         </div>
         <div className={cx('info-box', infoBoxPosition)}>
           <span>{player.name}</span>
           <span>${player.balance}</span>
           <div className={cx('cards-wrapper')}>
             <img
-              src={`/cards/${imgSlugForCard(firstCard)}.png`}
+              src={staticUrl(`cards/${imgSlugForCard(firstCard)}.png`)}
               alt={imgSlugForCard(firstCard)}
               className={cx({ card: true, raised: !!firstCard })}
             />
             <img
-              src={`/cards/${imgSlugForCard(secondCard)}.png`}
+              src={staticUrl(`cards/${imgSlugForCard(secondCard)}.png`)}
               alt={imgSlugForCard(firstCard)}
               className={cx({ kcard: true, raised: !!secondCard })}
             />

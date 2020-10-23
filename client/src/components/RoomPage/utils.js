@@ -11,4 +11,6 @@ const imgSlugForCard = ({ rank, color }) => {
   return `${color}_${rankToPath[rank] || rank}`;
 };
 
-export { imgSlugForCard };
+const staticUrl = (path) => `/re-poker/${path}`;
+
+export { imgSlugForCard, staticUrl };
