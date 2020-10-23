@@ -3,7 +3,6 @@ module Types
     argument :username, String, required: true
     argument :password, String, required: true
 
-    field :user_id, ID, null: true
     field :token, String, null: true
 
     def resolve(username:, password:)
@@ -14,7 +13,7 @@ module Types
 
       token = ::AuthToken.encode(user_id: user.id)
 
-      { user_id: user.id, token: token }
+      { token: token }
     end
   end
 
