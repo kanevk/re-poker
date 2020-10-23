@@ -15,7 +15,8 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.3"
+    "react-scripts": "3.4.3",
+    "talkjs": "^0.14.3"
   },
   "scripts": {
     "start": "PORT=3001 react-scripts start",
