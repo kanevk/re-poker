@@ -1,57 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import ActionCable from 'actioncable';
-import { ActionCableLink } from 'graphql-ruby-client';
-import {
-  ApolloLink,
-  ApolloProvider,
-  createHttpLink,
-  ApolloClient,
-  InMemoryCache,
-} from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
-
-import App from './components/App';
-
+import { ApolloProvider } from '@apollo/client';
 import * as serviceWorker from './serviceWorker';
 
-const httpLink = createHttpLink({
-  uri: 'http://localhost:3000/graphql',
-});
+import App from './components/App';
+import apolloClient from './apolloClient';
 
-const hasSubscriptionOperation = ({ query: { definitions } }) => {
-  return definitions.some(
-    ({ kind, operation }) => kind === 'OperationDefinition' && operation === 'subscription'
-  );
-};
-
-const authLink = setContext((obj, { headers }) => {
-  const token = localStorage.getItem('token');
-
-  return {
-    headers: {
-      ...headers,
-      authorization: token ? `Bearer ${token}` : '',
-    },
-  };
-});
-
-const httpAuthLink = authLink.concat(httpLink);
-
-// TODO: Send the token dynamically
-const token = localStorage.getItem('token');
-
-const cable = ActionCable.createConsumer('ws://localhost:3000/cable');
-const cableAuthLink = authLink.concat(new ActionCableLink({ cable, connectionParams: { token } }));
-
-const link = ApolloLink.split(hasSubscriptionOperation, cableAuthLink, httpAuthLink);
-
-// Initialize the client
-const apolloClient = new ApolloClient({
-  link,
-  cache: new InMemoryCache(),
-});
+import './index.css';
 
 ReactDOM.render(
   <ApolloProvider client={apolloClient}>

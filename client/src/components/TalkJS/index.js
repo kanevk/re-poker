@@ -37,26 +37,35 @@ const useChatbox = ({ chatId, users, conversationSettings: { photoUrl, subject }
   }, [users, loading, session, currentChatUser]);
 };
 
-const Chatbox = ({ chatId, users, fixedPosition = 'bottomLeft' }) => {
-  const chatWrapperRef = useRef(null);
-  const inboxElem = useChatbox({ chatId, users });
+const Chatbox = React.memo(
+  ({ chatId, users, fixedPosition = 'bottomLeft' }) => {
+    const chatWrapperRef = useRef(null);
+    const inboxElem = useChatbox({ chatId, users });
 
-  useEffect(() => {
-    if (!inboxElem || !chatWrapperRef) return () => {};
+    useEffect(() => {
+      if (!inboxElem || !chatWrapperRef) return () => {};
 
-    inboxElem.mount(chatWrapperRef.current);
+      inboxElem.mount(chatWrapperRef.current);
 
-    return () => {
-      inboxElem.destroy();
-    };
-  }, [inboxElem, chatWrapperRef.current]);
+      return () => {
+        inboxElem.destroy();
+      };
+    }, [inboxElem, chatWrapperRef.current]);
 
-  const style = {
-    bottomLeft: { position: 'fixed', bottom: '0', left: '0', height: '400px' },
-  }[fixedPosition];
+    const style = {
+      bottomLeft: { position: 'fixed', bottom: '0', left: '0', height: '400px' },
+    }[fixedPosition];
 
-  return <div style={style} ref={chatWrapperRef} />;
-};
+    return <div style={style} ref={chatWrapperRef} />;
+  },
+  (
+    { chatId: prevChatId, users: prevUsers, fixedPosition: prevFixedPosition },
+    { chatId, users, fixedPosition }
+  ) =>
+    chatId === prevChatId &&
+    fixedPosition === prevFixedPosition &&
+    JSON.stringify(users) === JSON.stringify(prevUsers)
+);
 
 Chatbox.propTypes = {
   chatId: PropTypes.string.isRequired,
