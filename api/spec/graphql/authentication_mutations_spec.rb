@@ -7,7 +7,6 @@ RSpec.describe 'Authentication mutations' do
     mutation = <<~GRAPHQL
       mutation ($username: String!, $password: String!) {
         signinUser(input: { username: $username, password: $password}) {
-          userId
           token
         }
       }

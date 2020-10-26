@@ -1,8 +1,11 @@
+puts 'Deleting current data...'
+DatabaseCleaner.clean_with(:truncation)
+
+puts 'Seeding...'
 users =
   %w(bob player42 game_over u-r-going-down bOOb3 next_turn hangover night-n-day).map do |name|
     User.create!(name: name, password: '1', balance: rand(100.00..2000.0))
   end
-
 
 %w(heaven ocean river cotton salt sugar blue red).each_with_index do |room_name, room_index|
   subset_users = users.shuffle[0..5]
@@ -27,3 +30,5 @@ users =
 
   room.update!(current_game: game)
 end
+
+puts 'Done.'

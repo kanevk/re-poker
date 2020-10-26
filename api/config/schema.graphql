@@ -62,6 +62,7 @@ type Player {
 }
 
 type Query {
+  currentUser: User!
   isAuthenticated: Boolean!
   rooms: [Room!]!
 }
@@ -71,6 +72,7 @@ type Room {
   id: ID!
   moveTimeLimit: Int!
   name: ID!
+  users: [User!]!
 }
 
 """
@@ -94,9 +96,13 @@ type SigninUserMutationPayload {
   """
   clientMutationId: String
   token: String
-  userId: ID
 }
 
 type Subscription {
   getRoom(roomId: ID!): Room!
+}
+
+type User {
+  id: ID!
+  name: String!
 }

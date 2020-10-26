@@ -406,6 +406,20 @@ CREATE INDEX index_rooms_on_current_game_id ON public.rooms USING btree (current
 
 
 --
+-- Name: room_players_on_user_id_and_room_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX room_players_on_user_id_and_room_id_idx ON public.room_players USING btree (user_id, room_id);
+
+
+--
+-- Name: users_on_name_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX users_on_name_idx ON public.users USING btree (name);
+
+
+--
 -- Name: rooms fk_rails_2cb3c92cef; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -460,6 +474,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200914181925'),
 ('20200915085332'),
 ('20201016141322'),
-('20201018185108');
+('20201018185108'),
+('20201024082840');
 
 

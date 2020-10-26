@@ -6,9 +6,13 @@ module Types
     end
 
     field :rooms, [Types::RoomType], null: false
-
     def rooms
       Room.all
+    end
+
+    field :current_user, UserType, null: false
+    def current_user
+      context[:current_user]
     end
   end
 end

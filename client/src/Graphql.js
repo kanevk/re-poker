@@ -3,8 +3,16 @@ import { gql } from '@apollo/client';
 const SIGNIN_USER_MUTATON = gql`
   mutation($username: String!, $password: String!) {
     signinUser(input: { username: $username, password: $password }) {
-      userId
       token
+    }
+  }
+`;
+
+const GET_CURRENT_USER_QUERY = gql`
+  query GetCurrentUser {
+    currentUser {
+      id
+      name
     }
   }
 `;
@@ -58,6 +66,10 @@ const GET_ROOM_SUBSCRIPTION = gql`
           ...FullPlayer
         }
       }
+      users {
+        id
+        name
+      }
     }
   }
 
@@ -72,4 +84,10 @@ const MAKE_MOVE_MUTATION = gql`
   }
 `;
 
-export { GET_ROOMS_QUERY, SIGNIN_USER_MUTATON, GET_ROOM_SUBSCRIPTION, MAKE_MOVE_MUTATION };
+export {
+  SIGNIN_USER_MUTATON,
+  GET_ROOMS_QUERY,
+  GET_CURRENT_USER_QUERY,
+  GET_ROOM_SUBSCRIPTION,
+  MAKE_MOVE_MUTATION,
+};
