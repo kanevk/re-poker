@@ -10,9 +10,9 @@ cd client
 ```
 
 * Set/Install correct NodeJS version >= v12
-If you use rbenv:
+If you use nvm:
 ```
-rbenv install && rbenv use
+nvm install && nvm use
 ```
 * Install system dependencies
 ```
