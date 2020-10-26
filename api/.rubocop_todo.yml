@@ -194,8 +194,7 @@ Naming/MethodParameterName:
 Naming/PredicateName:
   Exclude:
     - 'spec/**/*'
-    - 'app/graphql/types/query_type.rb'
-    - 'app/graphql/types/room_type.rb'
+    - 'app/graphql/types/*.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.

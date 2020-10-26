@@ -3,7 +3,6 @@ module Types
     OBJECT = Struct.new(:id, :name, :active, :balance, :money_in_pot,
                         :seat_number, :position, :avatar_url, :cards, :is_in_turn,
                         keyword_init: true) do
-
       def initialize(**kwargs)
         super(kwargs.slice(*members))
       end
