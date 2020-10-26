@@ -1,30 +1,56 @@
-# README
+# Re-poker API
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Setup
 
-Things you may want to cover:
+Before start, make sure you have the following installed: `bundler, docker, docker-compose`
 
-* Ruby version
+* Enter the `api` folder
+```
+cd api
+```
+* Set/Install correct Ruby version >= 2.6
+With rbenv:
+```
+rbenv use
+```
+**Note: If you use another ruby version manager use it to install Ruby with version >= 2.6**
 
-* System dependencies
-
-Install the pg gem with correct config path:
-
-```shell
-  gem install pg -v '1.2.3' --source 'https://rubygems.org/' -with-pg-config=../docker/data/postgres/postgresql.conf
+* Install service dependencies
+```
+docker-compose up
 ```
 
-* Configuration
+* Install system dependencies
+
+```
+bundle install
+```
+
+**If you face problem** with the `pg` gem, install with a correct config path:
+
+```shell
+  gem install pg -v '1.2.3' --source 'https://rubygems.org/' --with-pg-config=../docker/data/postgres/postgresql.conf
+```
 
 * Database creation
+```
+bundle exec rails db:setup
+```
 
-* Database initialization
+## Run tests
 
-* How to run the test suite
+```
+bundle exec rspec -fd
+```
 
-* Services (job queues, cache servers, search engines, etc.)
+## Run locally
 
-* Deployment instructions
+```
+bundle exec rails s
+```
 
-* ...
+*Start sidekiq for working background jobs*
+
+```
+bundle exec sidekiq
+```
