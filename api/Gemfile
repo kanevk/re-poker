@@ -9,7 +9,6 @@ gem 'rails', '~> 6.0.3', '>= 6.0.3.3'
 gem 'pg', '>= 0.18', '< 2.0'
 # Use Puma as the app server
 gem 'puma', '~> 4.1'
-gem 'bootsnap', '>= 1.4.2', require: false
 gem 'graphql', '1.9.18'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem 'rack-cors'
@@ -24,6 +23,7 @@ group :development, :test do
   gem 'pry-byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'graphiql-rails'
   gem 'database_cleaner-active_record', '~> 1.8'
+  gem 'bootsnap', '>= 1.4.2', require: false
 end
 
 group :test do

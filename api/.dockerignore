@@ -16,17 +16,11 @@
 # Ignore pidfiles, but keep the directory.
 /tmp/pids/*
 !/tmp/pids/
-!/tmp/pids/.keep
 
 # Ignore uploaded files in development.
 /storage/*
 !/storage/.keep
 .byebug_history
 
-# Ignore master key for decrypting credentials and more.
-/config/master.key
-
-th-pg-config=../
-
-/config/credentials/production.key
-/config/credentials/development.key
+# Dont ignore master key for decrypting credentials and more.
+# /config/master.key
