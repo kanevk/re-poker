@@ -1,22 +1,22 @@
 {
   "files": {
     "main.css": "/re-poker/static/css/main.c7b53d93.chunk.css",
-    "main.js": "/re-poker/static/js/main.a8dee29d.chunk.js",
-    "main.js.map": "/re-poker/static/js/main.a8dee29d.chunk.js.map",
+    "main.js": "/re-poker/static/js/main.7f716841.chunk.js",
+    "main.js.map": "/re-poker/static/js/main.7f716841.chunk.js.map",
     "runtime-main.js": "/re-poker/static/js/runtime-main.670c1e11.js",
     "runtime-main.js.map": "/re-poker/static/js/runtime-main.670c1e11.js.map",
-    "static/js/2.d84c1eb4.chunk.js": "/re-poker/static/js/2.d84c1eb4.chunk.js",
-    "static/js/2.d84c1eb4.chunk.js.map": "/re-poker/static/js/2.d84c1eb4.chunk.js.map",
+    "static/js/2.798f9fad.chunk.js": "/re-poker/static/js/2.798f9fad.chunk.js",
+    "static/js/2.798f9fad.chunk.js.map": "/re-poker/static/js/2.798f9fad.chunk.js.map",
     "index.html": "/re-poker/index.html",
-    "precache-manifest.d2e5449a4031083fb4b539c7598dcfc7.js": "/re-poker/precache-manifest.d2e5449a4031083fb4b539c7598dcfc7.js",
+    "precache-manifest.333d21a4c7fa73d95a4eac44775ca9dd.js": "/re-poker/precache-manifest.333d21a4c7fa73d95a4eac44775ca9dd.js",
     "service-worker.js": "/re-poker/service-worker.js",
     "static/css/main.c7b53d93.chunk.css.map": "/re-poker/static/css/main.c7b53d93.chunk.css.map",
-    "static/js/2.d84c1eb4.chunk.js.LICENSE.txt": "/re-poker/static/js/2.d84c1eb4.chunk.js.LICENSE.txt"
+    "static/js/2.798f9fad.chunk.js.LICENSE.txt": "/re-poker/static/js/2.798f9fad.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.670c1e11.js",
-    "static/js/2.d84c1eb4.chunk.js",
+    "static/js/2.798f9fad.chunk.js",
     "static/css/main.c7b53d93.chunk.css",
-    "static/js/main.a8dee29d.chunk.js"
+    "static/js/main.7f716841.chunk.js"
   ]
 }
