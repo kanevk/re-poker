@@ -1,13 +1,43 @@
 version: "3.8"
 
 services:
-  poker-api:
-    build: .
+  poker_api:
+    image: poker_api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        RAILS_ENV: development
+    volumes:
+      - .:/app
+    env_file:
+      - .env.local
     ports:
-      - 3001:3001
+      - "3001:3001"
+      - "403:403"
     depends_on:
       - poker_postgres
       - poker_redis
+    stdin_open: true
+    tty: true
+
+  poker_background_jobs:
+    image: poker_api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        RAILS_ENV: development
+    command: ["bundle", "exec", "sidekiq"]
+    volumes:
+      - .:/app
+    env_file:
+      - .env.local
+    depends_on:
+      - poker_redis
+      - poker_postgres
+    stdin_open: true
+    tty: true
 
   poker_redis:
     image: redis:6.0.8

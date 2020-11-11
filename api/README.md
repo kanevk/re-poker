@@ -43,6 +43,21 @@ bundle exec rails db:setup
 bundle exec rspec -fd
 ```
 
+## Debug with docker
+
+Make sure there are the following lines into the `docker-compose` service definition:
+```yaml
+example_service:
+  ...
+  stdin_open: true
+  tty: true
+```
+
+
+```shell
+docker-compose up --build --attach poker_api
+```
+
 ## Run locally
 
 ```

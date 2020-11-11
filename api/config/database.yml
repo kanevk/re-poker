@@ -26,7 +26,8 @@ development:
   database: poker_api_dev
   username: postgres
   password: password
-  host: localhost
+  host: <%= ENV['DATABASE_HOST'] %>
+  # host: localhost
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -76,7 +77,7 @@ test:
 # On Heroku and other platform providers, you may have a full connection URL
 # available as an environment variable. For example:
 #
-#   DATABASE_URL="postgres://myuser:mypass@localhost/somedatabase"
+#   DATABASE_URL="postgres://myuser:mypass@poker_postgres/somedatabase"
 #
 # You can use this database configuration with:
 #

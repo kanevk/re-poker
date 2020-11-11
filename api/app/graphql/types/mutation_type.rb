@@ -4,12 +4,13 @@ module Types
     argument :password, String, required: true
 
     field :token, String, null: true
+    field :error, String, null: true
 
     def resolve(username:, password:)
       user = User.find_by name: username
 
-      return { user_id: nil } unless user
-      return { user_id: nil } unless user.authenticate(password)
+      return { error: 'user_not_found' } unless user
+      return { error: 'incorrect_password' } unless user.authenticate(password)
 
       token = ::AuthToken.encode(user_id: user.id)
 

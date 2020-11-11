@@ -30,7 +30,16 @@ module Api
     # the framework and any gems in your application.
     config.active_record.schema_format = :sql
     config.active_job.queue_adapter = :sidekiq
-    config.redis = { password: '111333' }
+    config.redis = { host: 'poker_redis', password: '111333' }
+    config.hosts = [
+      IPAddr.new('0.0.0.0/0'), # All IPv4 addresses.
+      IPAddr.new('::/0'),      # All IPv6 addresses.
+      'localhost'              # The localhost reserved domain.
+    ]
+
+    config.action_cable.allowed_request_origins = [/http:\/\/*/, /https:\/\/*/]
+    config.action_cable.url = "ws://localhost:433/cable"
+    config.action_cable.disable_request_forgery_protection = true
 
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.

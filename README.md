@@ -29,3 +29,31 @@ Run both the Api & Web client servers and sign-in through the browser:
 login: bob
 pass: 1
 ```
+
+## Setup EC2
+
+```bash
+sudo apt-get update
+
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo apt-key fingerprint 0EBFCD88
+sudo add-apt-repository \
+  "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) \
+  stable"
+
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io # Install the latest version
+sudo docker run hello-world # test docker
+
+sudo apt-get update
+
+# Installing git
+sudo apt-get install git
+```

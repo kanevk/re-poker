@@ -7,7 +7,8 @@ module AuthToken
 
   def self.decode(token)
     JWT.decode(token, SECRET_KEY)[0].symbolize_keys
-  rescue JWT::InvalidIssuerError
+  rescue JWT::InvalidIssuerError, JWT::DecodeError => e
+    Rails.logger.error("Error parsing token '#{token}': #{e.inspect}")
     return {}
   end
 end

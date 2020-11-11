@@ -25,7 +25,7 @@ class GraphqlController < ApplicationController
     user = authenticate_with_http_token do |token, _options|
       user_id = AuthToken.decode(token)[:user_id]
 
-      raise GraphQL::ExecutionError, "Wrong authentication token!" unless user_id
+      next nil unless user_id
 
       User.find user_id
     end
