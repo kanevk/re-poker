@@ -32,6 +32,8 @@ pass: 1
 
 ## Setup EC2
 
+From https://docs.docker.com/engine/install/ubuntu/
+
 ```bash
 sudo apt-get update
 
@@ -56,4 +58,14 @@ sudo apt-get update
 
 # Installing git
 sudo apt-get install git
+# Docker compose
+sudo apt-get install docker-compose
+```
+
+```
+bundle exec rails db:create
+```
+
+```
+bundle exec rails db:seed
 ```
