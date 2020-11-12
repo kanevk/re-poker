@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.2"
 
 services:
   poker_api:
@@ -7,13 +7,13 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        RAILS_ENV: development
+        RAILS_ENV: ${COMPOSE_RAILS_ENV?}
     volumes:
       - .:/app
     env_file:
       - .env.local
     ports:
-      - "3001:3001"
+      - "${COMPOSE_API_PUBLISH_PORT?}:3001"
       - "403:403"
     depends_on:
       - poker_postgres
@@ -27,7 +27,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        RAILS_ENV: development
+        RAILS_ENV: ${COMPOSE_RAILS_ENV?}
     command: ["bundle", "exec", "sidekiq"]
     volumes:
       - .:/app
